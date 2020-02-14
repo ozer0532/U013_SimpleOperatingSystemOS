@@ -9,6 +9,8 @@ void clear(char *buffer, int length); //Fungsi untuk mengisi buffer dengan 0
 void writeFile(char *buffer, char *filename, int *sectors);
 void executeProgram(char *filename, int segment, int *success);
 void returnToKernel(char *string);
+void putchar(int x, int y, char cc, char color);
+void printStringFormat(int x, int y, char *string, char color);
 
 int div(int a, int b);
 int mod(int a, int b);
@@ -358,4 +360,23 @@ void printBootLogo() {
 	printString("    |_.__/ \\__,_|___/_| |_|\\___||___/       \r\n");
                                   
 
+}
+
+void putchar(int x, int y, char cc, char color){
+	putInMemory(0xB000, 0x8000 + (2*(80*y+x)), cc);
+	putInMemory(0xB000, 0x8000 + (2*(80*y+x))+1, color);
+}
+
+void printStringFormat(int x, int y, char *string, char color) {
+	char * pointer = string;
+	int startx = x;
+	while (*pointer != 0x00) {
+		if(*pointer=='\n'){
+			x = startx;
+			y++;
+			pointer++;
+		}else{
+			putchar(x++, y, *(pointer++), color);
+		}
+	}
 }
