@@ -1,6 +1,14 @@
-sudo apt install nasm bcc bin86 bochs bochs-x
+# Create new system.img file
 dd if=/dev/zero of=system.img bs=512 count=2880
-nasm bootloader.asm -o bootloader.img
-dd if=bootloader.img of=system.img bs=512 count=1 conv=notrunc
-dd if=map.img of=system.img bs=512 count=1 seek=1 conv=notrunc
-dd if=dir.img of=system.img bs=512 count=1 seek=2 conv=notrunc
+
+# Compile bootloader.asm to bootloader.img
+nasm ./ass/bootloader.asm -o ./img/bootloader.img
+
+# Insert bootloader to sector 0
+dd if=./img/bootloader.img of=system.img bs=512 count=1 conv=notrunc
+
+# Insert map to sector 1
+dd if=./img/map.img of=system.img bs=512 count=1 seek=1 conv=notrunc
+
+# Insert dir to sector 2
+dd if=./img/dir.img of=system.img bs=512 count=1 seek=2 conv=notrunc

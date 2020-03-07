@@ -1,6 +1,7 @@
 ;kernel.asm
-;Michael Black, 2007
+;Michael Hans, 2020
 ;Modified by Asisten Sister, 2020
+;With love from assistant (and lecturer)
 
 ;kernel.asm contains assembly functions that you can use in your kernel
 

@@ -1,4 +1,11 @@
-bcc -ansi -c -o kernel.o kernel.c
-nasm -f as86 kernel.asm -o kernel_asm.o
-ld86 -o kernel.img -d kernel.o kernel_asm.o
-dd if=kernel.img of=system.img bs=512 conv=notrunc seek=3
+# Compile kernel.c to object code
+bcc -ansi -c -o ./obj/kernel.o ./src/kernel.c
+
+# Compile kernel.asm to object code
+nasm -f as86 ./ass/kernel.asm -o ./obj/kernel_asm.o
+
+# Link kernel.asm's object with kernel.c's object
+ld86 -o ./img/kernel.img -d ./obj/kernel.o ./obj/kernel_asm.o
+
+# Insert kernel to sector 3
+dd if=./img/kernel.img of=system.img bs=512 seek=3 conv=notrunc

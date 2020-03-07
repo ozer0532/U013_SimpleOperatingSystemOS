@@ -1,0 +1,1 @@
+sudo apt install nasm bcc bin86 bochs bochs-x
