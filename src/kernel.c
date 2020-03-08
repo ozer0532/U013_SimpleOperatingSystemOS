@@ -7,7 +7,7 @@ void writeSector(char *buffer, int sector);
 void readFile(char *buffer, char *path, int *result, char parentIndex);
 void clear(char *buffer, int length); //Fungsi untuk mengisi buffer dengan 0
 void writeFile(char *buffer, char *path, int *sectors, char parentIndex);
-void executeProgram(char *filename, int segment, int *success);
+void executeProgram(char *filename, int segment, int *success, char parentIndex);
 void returnToKernel(char *string);
 void putchar(int x, int y, char cc, char color);
 void printStringFormat(int x, int y, char *string, char color);
@@ -44,32 +44,36 @@ int main () {
 	printString("\n");
 
     while (1) {
-		printString("bushes:~ ");
-		readString(command);
-		if(isStringEqual(command, "moo", 3))
-		{
-			executeProgram("moo", 0x2000, &flag);
-		}
-		else if(isStringEqual(command, "hello", 5))
-		{
-			executeProgram("hello", 0x2000, &flag);
-		}
-		else if(isStringEqual(command, "uwu", 3))
-		{
-			readFile(fileRead, "key.txt", &flag);
-			printString(fileRead);
-			printString("\r\n");
-		}
-		else if(isStringEqual(command, "milestone1", 10))
-		{
-			executeProgram("milestone1", 0x2000, &flag);
-		}
+		// printString("bushes:~ ");
+		// readString(command);
+		// if(isStringEqual(command, "moo", 3))
+		// {
+		// 	executeProgram("moo", 0x2000, &flag);
+		// }
+		// else if(isStringEqual(command, "hello", 5))
+		// {
+		// 	executeProgram("hello", 0x2000, &flag);
+		// }
+		// else if(isStringEqual(command, "uwu", 3))
+		// {
+		// 	readFile(fileRead, "key.txt", &flag);
+		// 	printString(fileRead);
+		// 	printString("\r\n");
+		// }
+		// else if(isStringEqual(command, "milestone1", 10))
+		// {
+		// 	executeProgram("milestone1", 0x2000, &flag);
+		// }
 		// clear(fileRead, 512 * 20);
 		// printString("Write a command [cat|run|ls]: ");
 		// readString(input);
 		// if (isStringEqual(input, "cat", 100)) {
 		// 	printString("Pick a file to load: ")
 		// }
+		readString(command);
+		printString(command);
+		writeFile(command, "apel", &flag, 0xFF);
+		writeFile(command, "cavendish", &flag, 0x00);
 	}
 }
 
@@ -184,70 +188,104 @@ void clear(char *buffer, int length) {
 
 void writeFile(char *buffer, char *path, int *sectors, char parentIndex) {
 	char map[512];
-	char dir[512];
-	int fileId;
+	char files[1024];
+	char sectors[512];
+
+	int filesRow;
+	int sectorsRow;
 	int filenamePos;
 	int sectorToWrite;
 	int i;
 
-	// **Baca sektor map dan dir
-	// Sectors : 0 = bootloader, 1 = map, 2 = dir
-	readSector(map, 1);
-	readSector(dir, 2);
+	// Read map, files, sectors
+	// 0x100, 0x101-0x102, 0x103
+	readSector(map, 256);
+	readSector(files, 0x101);
+	readSector(files+512, 0x102);
+	readSector(sectors, 0x103);
 
-	// Cek dir yang kosong
-	for (fileId = 0; fileId < 16; fileId++) {
-		// Get filename position
-		filenamePos = fileId * 32;
+	// Check for empty row in files
+	for (filesRow = 0; filesRow < 64; filesRow++) {
+		// Get filename position in row
+		filenamePos = (filesRow << 4) + 2;
 
-		// Check if file empty (name string = 0)
-		if (dir[filenamePos] == 0) {
+		// If filename empty (no file/folder exists)...
+		if (files[filenamePos] == 0)
+		{
+			printString("Files sector available\n\r");
 			break;
 		}
 	}
 
-	// Hentikan proses penulisan file
-	if (fileId == 16) {
-		printString("Failed to write file, file limit reached");
+	// If files sector is full...
+	if (filesRow == 64) {
+		printString("Failed to write file, files sector limit reached");
 		return;
 	}
 
-	// Cek jumlah sektor di map cukup untuk buffer file
+	// If there are not enough sectors to be written...
 	if (getEmptySectorCount(map, 256) < *sectors) {
-		// Hentikan proses penulisan file
-		printString("Failed to write file, sector limit reached");
+		// Stop writing process
+		printString("Failed to write file, map sector limit reached");
 		return;
 	}
 
-	// Bersihkan sektor yang akan digunakan menyimpan nama
-	clear(dir + fileId * 32, 12);
-
-	// Isi sektor pada dir dengan nama file
-	for (i = 0; i < 12; i++) {
-		if (filename[i] == 0) {
+	// Check for empty row in sectors
+	for(sectorsRow = 0; sectorsRow < 32; sectorsRow++)
+	{
+		// If sectors row empty...
+		if((sectors[sectorsRow << 4]) == 0){
+			printString("Sectors sector available\n\r");
 			break;
 		}
-		dir[fileId * 32 + i] = filename[i];
 	}
 
-	// Tulis semua buffer
+	// If sectors sector is full...
+	if(sectorsRow == 32) {
+		printString("Failed to write file, sectors sector limit reached");
+		return;
+	}
+
+	// Clear files row
+	clear(files + (filesRow << 4), 16);
+	
+	// Set `P` value in files row
+	files[filesRow<<4] = parentIndex;
+
+	// Set `S` value in files row
+	files[(filesRow<<4) + 1] = sectorsRow;
+
+	// Set filename in files row
+	for (i = 0; i < 14; i++) {
+		if (path[i] == 0)
+			break;
+		
+		files[(filesRow<<4) + 3 + i] = path[i];
+	}
+
+
+	// Write all buffer contents
 	for (i = 0; i < *sectors; i++) {
-		// Cari sektor di map yang kosong
+		// Find empty sector to write in
 		sectorToWrite = getFirstEmptySector(map, 256);
 		
-		// Isi sektor tersebut dengan byte di buffer
-		writeSector(buffer + 512 * i, sectorToWrite);
-
-		// Tandai di map
+		// Mark in map sector
 		map[sectorToWrite] = 0xFF;
 
-		// Tandai di dir
-		dir[fileId * 32 + 12 + i] = sectorToWrite;
+		// Store sector number in sectors sector
+		sectors[(sectorsRow<<4) + i] = sectorToWrite;
+
+		printString("writing to sector\n\r");
+
+		// Write buffer to  sector
+		writeSector(buffer + (i<<9), sectorToWrite);
 	}
 
-	// Simpan map dan dir ke disk
-	writeSector(map, 1);
-	writeSector(dir, 2);
+	/// Write to system.img
+	writeSector(map, 0x100);
+	writeSector(files, 0x101);
+	writeSector(files+512, 0x102);
+	writeSector(sectors, 0x103);
 }
 
 int getEmptySectorCount(char *buffer, int sectors) {
@@ -266,6 +304,7 @@ int getEmptySectorCount(char *buffer, int sectors) {
 int getFirstEmptySector(char *buffer, int sectors) {
 	int i;
 	for (i = 0; i < sectors; i++) {
+		printString("i\n\r");
 		if (buffer[i] == 0x00) {
 			return i;
 		}
@@ -355,7 +394,7 @@ int stringLength(char *string, int max) {
 	return length;
 }
 
-void executeProgram(char *filename, int segment, int *success) {
+void executeProgram(char *filename, int segment, int *success, char parentIndex) {
 	char buffer[512 * 20];
 	int i;
 
@@ -378,7 +417,7 @@ void executeProgram(char *filename, int segment, int *success) {
 
 void returnToKernel(char *string) {
 	int one = 1;
-	executeProgram(string, 0x3000, &one);
+	executeProgram(string, 0x3000, &one, 0xFF);
 }
 
 void printBootLogo() {
