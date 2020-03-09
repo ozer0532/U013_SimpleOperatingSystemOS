@@ -4,10 +4,10 @@ void printString(char *string);
 void readString(char *string);
 void readSector(char *buffer, int sector);
 void writeSector(char *buffer, int sector);
-void readFile(char *buffer, char *filename, int *success);
+void readFile(char *buffer, char *path, int *result, char parentIndex);
 void clear(char *buffer, int length); //Fungsi untuk mengisi buffer dengan 0
-void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex);
-void executeProgram(char *filename, int segment, int *success);
+void writeFile(char *buffer, char *path, int *sectors, char parentIndex);
+void executeProgram(char *filename, int segment, int *success, char parentIndex);
 void returnToKernel(char *string);
 void putchar(int x, int y, char cc, char color);
 void printStringFormat(int x, int y, char *string, char color);
@@ -18,7 +18,13 @@ int mod(int a, int b);
 int getEmptySectorCount(char *buffer, int sectors);
 int getFirstEmptySector(char *buffer, int sectors);
 
+// String ops
 char isStringEqual(char *a, char *b, int length);
+char isStringStartsWith(char *a, char *b, int length);
+int stringLength(char *string, int max);
+
+int getCurrentFolderIndex(char *currentPath);
+int getPathIndex(char parentIndex, char *filePath);
 
 // MAIN FUNCTIONS
 void printBootLogo();
@@ -72,35 +78,36 @@ int main () {
 }
 
 void handleInterrupt21 (int AX, int BX, int CX, int DX) {
-    switch (AX) {
-	case 0x0:
-		printString(BX);
-		break;
-	case 0x1:
-		readString(BX);
-		break;
-	case 0x2:
-		readSector(BX, CX);
-		break;
-	case 0x3:
-		writeSector(BX, CX);
-		break;
-	case 0x4:
-		readFile(BX, CX, DX);
-		break;
-	case 0x5:
-		writeFile(BX, CX, DX);
-		break;
-	case 0x6:
-		executeProgram(BX, CX, DX);
-		break;
-	case 0x7:
-		returnToKernel(BX);
-		break;
-	default:
-		printString("Invalid interrupt");
+	char AL, AH;
+	AL = (char) (AX);
+	AH = (char) (AX >> 8);
+	switch (AL) {
+		case 0x00:
+			printString(BX);
+			break;
+		case 0x01:
+			readString(BX);
+			break;
+		case 0x02:
+			readSector(BX, CX);
+			break;
+		case 0x03:
+			writeSector(BX, CX);
+			break;
+		case 0x04:
+			readFile(BX, CX, DX, AH);
+			break;
+		case 0x05:
+			writeFile(BX, CX, DX, AH);
+			break;
+		case 0x06:
+			executeProgram(BX, CX, DX, AH);
+			break;
+		default:
+			printString("Invalid interrupt");
 	}
 }
+
 
 void printString(char *string) {
 	char * pointer = string;
@@ -179,8 +186,7 @@ void clear(char *buffer, int length) {
 	}
 }
 
-
-void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
+void writeFile(char *buffer, char *path, int *sectors, char parentIndex) {
 	char map[512];
 	char files[1024];
 	char sectors[512];
@@ -267,7 +273,7 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 
 
 	// Write all buffer contents
-	for (i = 0; i < *sectorCount; i++) {
+	for (i = 0; i < *sectors; i++) {
 		// Find empty sector to write in
 		sectorToWrite = getFirstEmptySector(map, 256);
 		
@@ -320,42 +326,49 @@ int getFirstEmptySector(char *buffer, int sectors) {
 	}
 }
 
-void readFile(char *buffer, char *filename, int *success) {
-	char dir[512];
-	int entry;
+void readFile(char *buffer, char *path, int *result, char parentIndex) {
+	char sectors[512];
 	int noSector;
-	int dirPos;
+	int secPos;
+	int fileIdx;
 	
-	// Baca sektor dir
-	readSector(dir, 2);
+	fileIdx = getPathIndex(parentIndex, path);
 
-	// Nama file sesuai?
-	for (entry = 0; entry < 16; entry++) {
-		if (isStringEqual(dir + entry * 32, filename, 12) == 1) {
-			break;
-		}
-	}
-
-	// success <- FALSE
-	if (entry == 16) {
-		printString("Failed to read file, no file found\n\r");
-		*success = 0;
+	if (fileIdx == -1) {
+		*result = -1;
 		return;
 	}
+
+	// Baca sektor dir
+	// readSector(dir, 2);
+
+	// Nama file sesuai?
+	// for (entry = 0; entry < 16; entry++) {
+	// 	if (isStringEqual(dir + entry * 32, filename, 12) == 1) {
+	// 		break;
+	// 	}
+	// }
+
+	// success <- FALSE
+	// if (entry == 16) {
+	// 	printString("Failed to read file, no file found\n\r");
+	// 	*result = -1;
+	// 	return;
+	// }
 
 	printString("File found, reading file\n\r");
 	// Baca sektor
 	for (noSector = 0; noSector < 20; noSector++) {
-		dirPos = entry * 32 + 12 + noSector;
-		if (dir[dirPos] == 0) {
+		secPos = fileIdx * 16 + noSector;
+		if (sectors[secPos] == 0) {
 			printString("End of file..\n\r");
 			break;
 		}
 		printString("Reading sector...\n\r");
-		readSector(buffer + noSector * 512, dir[dirPos]);
+		readSector(buffer + noSector * 512, sectors[secPos]);
 	}
 	
-	*success = 1;
+	*result = 1;
 }
 
 char isStringEqual(char *a, char *b, int length) {
@@ -373,13 +386,36 @@ char isStringEqual(char *a, char *b, int length) {
 	return 1;
 }
 
-void executeProgram(char *filename, int segment, int *success) {
+char isStringStartsWith(char *a, char *b, int length) {
+	int i;
+
+	for (i = 0; i < length; i++) {
+		if (b[i] == 0) {
+			return 1;
+		}
+		if (a[i] != b[i]) {
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+int stringLength(char *string, int max) {
+	int length = 0;
+	while (string[length] != 0 && length < max) {
+		length++;
+	}
+	return length;
+}
+
+void executeProgram(char *filename, int segment, int *success, char parentIndex) {
 	char buffer[512 * 20];
 	int i;
 
 	clear(buffer, 512 * 20);
 
-	readFile(buffer, filename, success);
+	readFile(buffer, filename, success, 0xFF);
 
 	if (*success == 0) {
 		printString("Siao a kenot launch edi a...");
@@ -396,7 +432,7 @@ void executeProgram(char *filename, int segment, int *success) {
 
 void returnToKernel(char *string) {
 	int one = 1;
-	executeProgram(string, 0x3000, &one);
+	executeProgram(string, 0x3000, &one, 0xFF);
 }
 
 void printBootLogo() {
@@ -430,8 +466,103 @@ void printStringFormat(int x, int y, char *string, char color) {
 			x = startx;
 			y++;
 			pointer++;
-		}else{
+		} else {
 			putchar(x++, y, *(pointer++), color);
 		}
 	}
+}
+
+int getCurrentFolderIndex(char *currentPath) {
+	const char lineSize = 0x10;
+	const char maxFileCount = 0x40;
+	char files[512 * 2];
+	char idx = 0;
+	char P = 0xFF;
+	char pathReadPos = 0;
+	char isFileFound = 1;
+
+	readSector(files, 0x101);
+	readSector(files + 512, 0x102);
+	
+	// Get index of current path
+	while (currentPath[pathReadPos] != 0x00) {
+		if (currentPath[pathReadPos] == '/') {
+			if (isFileFound == 0) {
+				return -1;
+			}
+			isFileFound = 0;
+			pathReadPos++;
+		} else {
+			if (isStringStartsWith(currentPath + pathReadPos, files + idx * 16 + 2, 14)) {
+				pathReadPos += stringLength(idx, 14);
+				isFileFound = 1;
+				P = idx;
+				idx = 0;
+			} else {
+				idx++;
+			}
+			if (idx >= maxFileCount) {
+				return -1;
+			}
+		}
+	}
+	return P;
+}
+
+int getPathIndex(char parentIndex, char *filePath) {
+	const char lineSize = 0x10;
+	const char maxFileCount = 0x40;
+	char files[512 * 2];
+	char idx = 0;
+	char P = 0xFF;
+	char pathReadPos = 0;
+	char isFileFound = 0;
+
+	readSector(files, 0x101);
+	readSector(files + 512, 0x102);
+
+	// TODO: Optimize to not check current path
+	if (filePath[0] == '/') {	// If Root folder
+		pathReadPos ++;
+		P = 0xFF;
+	} else if (filePath[0] == '.' && filePath[1] == '/') {	// If current folder
+		pathReadPos += 2;
+	} else {			// If @ $PATH
+		// P = $PATH
+	}
+
+	// Get index of filePath
+	while (filePath[pathReadPos] != 0x00) {
+		if (filePath[pathReadPos] == '/') {		// Go inside folder
+			if (isFileFound == 0) {
+				return -1;
+			}
+			isFileFound = 0;
+			pathReadPos++;
+		} else if (filePath[pathReadPos] == '.') {
+			pathReadPos++;
+			// parent folder
+			if (filePath[pathReadPos] == '.' && filePath[pathReadPos + 1] == '.' && filePath[pathReadPos + 2] == '/') {
+				if (P == 0xFF) return -1;
+				P = files[P * 16];
+				pathReadPos += 3;
+			} else {
+				// Read normally
+			}
+		} else {
+			if (isStringStartsWith(filePath + pathReadPos, files + idx * 16 + 2, 14)) {
+				pathReadPos += stringLength(idx, 14);
+				isFileFound = 1;
+				P = idx;
+				idx = 0;
+			} else {
+				idx++;
+			}
+			if (idx >= maxFileCount) {
+				return -1;
+			}
+		}
+	}
+
+	return P;
 }
