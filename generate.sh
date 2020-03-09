@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Create new system.img file
 dd if=/dev/zero of=system.img bs=512 count=2880
 

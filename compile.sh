@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Compile kernel.c to object code
 bcc -ansi -c -o ./obj/kernel.o ./src/kernel.c
 

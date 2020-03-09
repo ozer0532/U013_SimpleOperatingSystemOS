@@ -1,12 +1,14 @@
 // INTERRUPT HANDLING
 void handleInterrupt21 (int AX, int BX, int CX, int DX);
 void printString(char *string);
+void printInteger(int n);
+void printHexa(int n);
 void readString(char *string);
 void readSector(char *buffer, int sector);
 void writeSector(char *buffer, int sector);
 void readFile(char *buffer, char *path, int *result, char parentIndex);
 void clear(char *buffer, int length); //Fungsi untuk mengisi buffer dengan 0
-void writeFile(char *buffer, char *path, int *sectors, char parentIndex);
+void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex);
 void executeProgram(char *filename, int segment, int *success, char parentIndex);
 void returnToKernel(char *string);
 void putchar(int x, int y, char cc, char color);
@@ -119,6 +121,41 @@ void printString(char *string) {
 	}
 }
 
+void printInteger(int n) {
+	int tmp;
+	char* number;
+
+	tmp=n;
+
+	if(tmp == 0) {printString("0");return;}
+
+	while(tmp!=0)
+	{
+		number[0] = mod(tmp,10) + '0';
+		number[1] = 0;
+		
+		printString(number);
+		tmp = div(tmp, 10);
+	}
+}
+
+void printHexa(int n)
+{
+	int tmp = n;
+	char number[3];
+	number[2] = 0;
+
+	number[0] = div(tmp, 16);
+	if(number[0] >= 10) number[0] = (number[0]-10) + 'A';
+	else number[0] = number[0] + '0';
+	number[1] = tmp - div(tmp,16)*16;
+	if(number[1] >= 10) number[1] = (number[1]-10) + 'A';
+	else number[1] = number[1] + '0';
+
+	printString(number);
+
+}
+
 void readString(char *string) {
 	// Interrupt for reading keystroke (16)
 	int charInput = interrupt(0x16, 0, 0, 0, 0);
@@ -186,44 +223,41 @@ void clear(char *buffer, int length) {
 	}
 }
 
-void writeFile(char *buffer, char *path, int *sectors, char parentIndex) {
+void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 	char map[512];
 	char files[1024];
 	char sectors[512];
 
 	int filesRow;
 	int sectorsRow;
-	int filenamePos;
 	int sectorToWrite;
 	int i;
 	int tmp;
 
 	// Read map, files, sectors
 	// 0x100, 0x101-0x102, 0x103
-	readSector(map, 0x100);
+	readSector(map, 256);
 	readSector(files, 0x101);
 	readSector(files+512, 0x102);
 	readSector(sectors, 0x103);
 	
-	tmp = 0;
-	for(i = 0; i<512; i++) 
-	{
-		if(map[i]==0xFF) tmp++;
-	}
-	if(tmp>0) printString("yey?");
-
 	// Check for empty row in files
 	for (filesRow = 0; filesRow < 64; filesRow++) {
-		// Get filename position in row
-		filenamePos = (filesRow << 4) + 2;
 
 		// If filename empty (no file/folder exists)...
-		if (files[filenamePos] == 0)
+		if (files[(filesRow << 4) + 2] == 0)
 		{
 			printString("Files sector available\n\r");
 			break;
 		}
 	}
+
+	for(i = 0; i<512 ; i++)
+	{
+		printHexa(map[i]);
+		printString(" ");
+	}
+	printString("\n\r");
 
 	// If files sector is full...
 	if (filesRow == 64) {
@@ -232,7 +266,7 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex) {
 	}
 
 	// If there are not enough sectors to be written...
-	if (getEmptySectorCount(map, 256) < *sectors) {
+	if (getEmptySectorCount(map, 256) < *sectorCount) {
 		// Stop writing process
 		printString("Failed to write file, map sector limit reached");
 		return;
@@ -273,7 +307,7 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex) {
 
 
 	// Write all buffer contents
-	for (i = 0; i < *sectors; i++) {
+	for (i = 0; i < *sectorCount; i++) {
 		// Find empty sector to write in
 		sectorToWrite = getFirstEmptySector(map, 256);
 		
@@ -284,13 +318,15 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex) {
 		sectors[(sectorsRow<<4) + i] = sectorToWrite;
 
 		printString("writing to sector ");
-		tmp = sectorToWrite;
-		while(tmp!=0)
-		{
-			printString("pisng");
-			tmp = div(tmp, 10);
-		}
+		printInteger(sectorToWrite);
 		printString("\n\r");
+		// tmp = sectorToWrite;
+		// while(tmp!=0)
+		// {
+		// 	printString("pisng");
+		// 	tmp = div(tmp, 10);
+		// }
+		// printString("\n\r");
 
 		// Write buffer to  sector
 		writeSector(buffer + (i<<9), sectorToWrite);
@@ -473,13 +509,20 @@ void printStringFormat(int x, int y, char *string, char color) {
 }
 
 int getCurrentFolderIndex(char *currentPath) {
-	const char lineSize = 0x10;
-	const char maxFileCount = 0x40;
+	char lineSize;
+	char maxFileCount;
 	char files[512 * 2];
-	char idx = 0;
-	char P = 0xFF;
-	char pathReadPos = 0;
-	char isFileFound = 1;
+	char idx;
+	char P;
+	char pathReadPos;
+	char isFileFound;
+
+	lineSize = 0x10;
+	maxFileCount = 0x40;
+	idx = 0;
+	P = 0xFF;
+	pathReadPos = 0;
+	isFileFound = 1;
 
 	readSector(files, 0x101);
 	readSector(files + 512, 0x102);
@@ -510,13 +553,20 @@ int getCurrentFolderIndex(char *currentPath) {
 }
 
 int getPathIndex(char parentIndex, char *filePath) {
-	const char lineSize = 0x10;
-	const char maxFileCount = 0x40;
+	char lineSize;
+	char maxFileCount;
 	char files[512 * 2];
-	char idx = 0;
-	char P = 0xFF;
-	char pathReadPos = 0;
-	char isFileFound = 0;
+	char idx;
+	char P;
+	char pathReadPos;
+	char isFileFound;
+
+	lineSize = 0x10;
+	maxFileCount = 0x40;
+	idx = 0;
+	P = 0xFF;
+	pathReadPos = 0;
+	isFileFound = 0;
 
 	readSector(files, 0x101);
 	readSector(files + 512, 0x102);
