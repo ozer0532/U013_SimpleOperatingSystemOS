@@ -148,7 +148,7 @@ void printHexa(int n)
 	number[0] = div(tmp, 16);
 	if(number[0] >= 10) number[0] = (number[0]-10) + 'A';
 	else number[0] = number[0] + '0';
-	number[1] = tmp - div(tmp,16)*16;
+	number[1] = mod(tmp, 16);
 	if(number[1] >= 10) number[1] = (number[1]-10) + 'A';
 	else number[1] = number[1] + '0';
 
@@ -210,7 +210,7 @@ int div(int a, int b) {
 }
 
 int mod(int a, int b) {
-	while (a > b) {
+	while (a >= b) {
 		a -= b;
 	}
 	return a;
@@ -252,12 +252,12 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 		}
 	}
 
-	for(i = 0; i<512 ; i++)
-	{
-		printHexa(map[i]);
-		printString(" ");
-	}
-	printString("\n\r");
+	// for(i = 0; i<512 ; i++)
+	// {
+	// 	printHexa(map[i]);
+	// 	printString(" ");
+	// }
+	// printString("\n\r");
 
 	// If files sector is full...
 	if (filesRow == 64) {
