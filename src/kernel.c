@@ -67,7 +67,7 @@ int main () {
 		readString(command);
 		printString(command);
 		writeFile(command, "apel", &flag, 0xFF);
-		writeFile(command, "cavendish", &flag, 0x00);
+		// writeFile(command, "cavendish", &flag, 0x00);
 	}
 }
 
@@ -190,13 +190,21 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 	int filenamePos;
 	int sectorToWrite;
 	int i;
+	int tmp;
 
 	// Read map, files, sectors
 	// 0x100, 0x101-0x102, 0x103
-	readSector(map, 256);
+	readSector(map, 0x100);
 	readSector(files, 0x101);
 	readSector(files+512, 0x102);
 	readSector(sectors, 0x103);
+	
+	tmp = 0;
+	for(i = 0; i<512; i++) 
+	{
+		if(map[i]==0xFF) tmp++;
+	}
+	if(tmp>0) printString("yey?");
 
 	// Check for empty row in files
 	for (filesRow = 0; filesRow < 64; filesRow++) {
@@ -254,7 +262,7 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 		if (path[i] == 0)
 			break;
 		
-		files[(filesRow<<4) + 3 + i] = path[i];
+		files[(filesRow<<4) + 2 + i] = path[i];
 	}
 
 
@@ -269,7 +277,14 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 		// Store sector number in sectors sector
 		sectors[(sectorsRow<<4) + i] = sectorToWrite;
 
-		printString("writing to sector\n\r");
+		printString("writing to sector ");
+		tmp = sectorToWrite;
+		while(tmp!=0)
+		{
+			printString("pisng");
+			tmp = div(tmp, 10);
+		}
+		printString("\n\r");
 
 		// Write buffer to  sector
 		writeSector(buffer + (i<<9), sectorToWrite);
