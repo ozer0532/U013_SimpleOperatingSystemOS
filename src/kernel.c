@@ -110,16 +110,6 @@ void handleInterrupt21 (int AX, int BX, int CX, int DX) {
 	}
 }
 
-void readSector(char *buffer, int sector) {
-	// int 13=Disk; AH 02=Read Sector; AL 01=Read 1 sector; BX Output Buffer; CH Cylinder #; CL Sector #; DH Head #; DL Drive #
-	interrupt(0x13, 0x201, buffer, div(sector, 36) * 0x100 + mod(sector, 18) + 1, mod(div(sector, 18), 2) * 0x100);
-}
-
-void writeSector(char *buffer, int sector) {
-	// int 13=Disk; AH 03=Write Sector; AL 01=Read 1 sector; BX Input Buffer; CH Cylinder #; CL Sector #; DH Head #; DL Drive #
-	interrupt(0x13, 0x301, buffer, div(sector, 36) * 0x100 + mod(sector, 18) + 1, mod(div(sector, 18), 2) * 0x100);
-}
-
 int div(int a, int b) {
 	int x = 0;
 	while (a > b) {
@@ -141,73 +131,6 @@ void clear(char *buffer, int length) {
 	for (i = 0; i < length; i++) {
 		buffer[i] = 0;
 	}
-}
-
-int getEmptySectorCount(char *buffer, int sectors) {
-	int count;
-	int i;
-
-	count = 0;
-	for (i = 0; i < sectors; i++) {
-		if (buffer[i] == 0x00) {
-			count++;
-		}
-	}
-	return count;
-}
-
-int getFirstEmptySector(char *buffer, int sectors) {
-	int i;
-	for (i = 0; i < sectors; i++) {
-		if (buffer[i] == 0x00) {
-			return i;
-		}
-	}
-}
-
-void readFile(char *buffer, char *path, int *result, char parentIndex) {
-	char sectors[512];
-	int noSector;
-	int secPos;
-	int fileIdx;
-	
-	fileIdx = getPathIndex(parentIndex, path);
-
-	if (fileIdx == -1) {
-		*result = -1;
-		return;
-	}
-
-	// Baca sektor dir
-	// readSector(dir, 2);
-
-	// Nama file sesuai?
-	// for (entry = 0; entry < 16; entry++) {
-	// 	if (isStringEqual(dir + entry * 32, filename, 12) == 1) {
-	// 		break;
-	// 	}
-	// }
-
-	// success <- FALSE
-	// if (entry == 16) {
-	// 	printString("Failed to read file, no file found\n\r");
-	// 	*result = -1;
-	// 	return;
-	// }
-
-	printString("File found, reading file\n\r");
-	// Baca sektor
-	for (noSector = 0; noSector < 20; noSector++) {
-		secPos = fileIdx * 16 + noSector;
-		if (sectors[secPos] == 0) {
-			printString("End of file..\n\r");
-			break;
-		}
-		printString("Reading sector...\n\r");
-		readSector(buffer + noSector * 512, sectors[secPos]);
-	}
-	
-	*result = 1;
 }
 
 char isStringEqual(char *a, char *b, int length) {
@@ -290,25 +213,6 @@ void printBootLogo() {
 	printString("    |_.__/ \\__,_|___/_| |_|\\___||___/       \r\n");
                                   
 
-}
-
-void putchar(int x, int y, char cc, char color){
-	putInMemory(0xB000, 0x8000 + (2*(80*y+x)), cc);
-	putInMemory(0xB000, 0x8000 + (2*(80*y+x))+1, color);
-}
-
-void printStringFormat(int x, int y, char *string, char color) {
-	char * pointer = string;
-	int startx = x;
-	while (*pointer != 0x00) {
-		if(*pointer=='\n'){
-			x = startx;
-			y++;
-			pointer++;
-		} else {
-			putchar(x++, y, *(pointer++), color);
-		}
-	}
 }
 
 int getCurrentFolderIndex(char *currentPath) {

@@ -53,3 +53,22 @@ void printHexa(int n)
 	printString(number);
 
 }
+
+void putchar(int x, int y, char cc, char color){
+	putInMemory(0xB000, 0x8000 + (2*(80*y+x)), cc);
+	putInMemory(0xB000, 0x8000 + (2*(80*y+x))+1, color);
+}
+
+void printStringFormat(int x, int y, char *string, char color) {
+	char * pointer = string;
+	int startx = x;
+	while (*pointer != 0x00) {
+		if(*pointer=='\n'){
+			x = startx;
+			y++;
+			pointer++;
+		} else {
+			putchar(x++, y, *(pointer++), color);
+		}
+	}
+}

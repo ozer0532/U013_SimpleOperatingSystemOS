@@ -45,7 +45,7 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 	{
 		// If sectors row empty...
 		if((sectors[sectorsRow << 4]) == 0){
-			printString("Sectors sector available\n\r");
+			printStringFormat(10,10,"Sectors sector available\n\r", 1);
 			break;
 		}
 	}
