@@ -16,27 +16,44 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 	readSector(files+512, 0x102);
 	readSector(sectors, 0x103);
 	
+	// for(i=0;i<16;i++) {printHexa(files[16*parentIndex + i]);printString(" ");}
+
+	// Check parent index validity
+	if(parentIndex!=0xFF && files[(16*parentIndex)+1]!=0xFF)
+	{
+		printString("Failed to write file, folder invalid\n\r");
+		*sectors = -4;
+		return;
+	}
+
 	// Check for empty row in files
 	for (filesRow = 0; filesRow < 64; filesRow++) {
+		
+		// If filename equal to other files...
+		if(isStringEqual(path, files + (filesRow << 4) + 2, stringLength(path, 512)))
+		{
+			printString("Failed to write file, filename exists\n\r");
+			*sectors = -1;
+			return;
+
+		}
 
 		// If filename empty (no file/folder exists)...
 		if (files[(filesRow << 4) + 2] == 0)
-		{
-			printString("Files sector available\n\r");
 			break;
-		}
 	}
 
 	// If files sector is full...
 	if (filesRow == 64) {
-		printString("Failed to write file, files sector limit reached");
+		printString("Failed to write file, files sector limit reached\n\r");
+		*sectors = -2;
 		return;
 	}
 
 	// If there are not enough sectors to be written...
 	if (getEmptySectorCount(map, 256) < *sectorCount) {
-		// Stop writing process
-		printString("Failed to write file, map sector limit reached");
+		printString("Failed to write file, map sector limit reached\n\r");
+		*sectors = -3;
 		return;
 	}
 
@@ -45,14 +62,14 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 	{
 		// If sectors row empty...
 		if((sectors[sectorsRow << 4]) == 0){
-			printStringFormat(10,10,"Sectors sector available\n\r", 1);
 			break;
 		}
 	}
 
 	// If sectors sector is full...
 	if(sectorsRow == 32) {
-		printString("Failed to write file, sectors sector limit reached");
+		*sectors = -3;
+		printString("Failed to write file, sectors sector limit reached\n\r");
 		return;
 	}
 
@@ -72,7 +89,6 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 		
 		files[(filesRow<<4) + 2 + i] = path[i];
 	}
-
 
 	// Write all buffer contents
 	for (i = 0; i < *sectorCount; i++) {
