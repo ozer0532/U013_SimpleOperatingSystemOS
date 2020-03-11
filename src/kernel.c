@@ -28,6 +28,9 @@ int stringLength(char *string, int max);
 int getCurrentFolderIndex(char *currentPath);
 int getPathIndex(char parentIndex, char *filePath);
 
+// SHELL
+void shell();
+
 // MAIN FUNCTIONS
 void printBootLogo();
 
@@ -45,38 +48,7 @@ int main () {
 
 	printString("\n");
 
-    while (1) {
-		// printString("bushes:~ ");
-		// readString(command);
-		// if(isStringEqual(command, "moo", 3))
-		// {
-		// 	executeProgram("moo", 0x2000, &flag);
-		// }
-		// else if(isStringEqual(command, "hello", 5))
-		// {
-		// 	executeProgram("hello", 0x2000, &flag);
-		// }
-		// else if(isStringEqual(command, "uwu", 3))
-		// {
-		// 	readFile(fileRead, "key.txt", &flag);
-		// 	printString(fileRead);
-		// 	printString("\r\n");
-		// }
-		// else if(isStringEqual(command, "milestone1", 10))
-		// {
-		// 	executeProgram("milestone1", 0x2000, &flag);
-		// }
-		// clear(fileRead, 512 * 20);
-		// printString("Write a command [cat|run|ls]: ");
-		// readString(input);
-		// if (isStringEqual(input, "cat", 100)) {
-		// 	printString("Pick a file to load: ")
-		// }
-		readString(command);
-		printString(command);
-		writeFile(command, "apel", &flag, 0xFF);
-		// writeFile(command, "cavendish", &flag, 0x00);
-	}
+    shell();
 }
 
 void handleInterrupt21 (int AX, int BX, int CX, int DX) {
@@ -259,7 +231,7 @@ int getCurrentFolderIndex(char *currentPath) {
 	return P;
 }
 
-int getPathIndex(char parentIndex, char *filePath) {
+char getPathIndex(char parentIndex, char *filePath) {
 	char lineSize;
 	char maxFileCount;
 	char files[512 * 2];

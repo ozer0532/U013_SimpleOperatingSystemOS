@@ -1,4 +1,4 @@
-int getPathIndex(char parentIndex, char *filePath);
+/*int getPathIndex(char parentIndex, char *filePath);
 void loop(void);
 
 int getPathIndex(char parentIndex, char *filePath) {
@@ -66,20 +66,7 @@ int getPathIndex(char parentIndex, char *filePath) {
 	return P;
 }
 
-
-void loop(char parentIndex)
-{
-	char files[1024];
-	readSector(files, 0x101);
-	readSector(files + 512, 0x102);
-	printString(files + parentIndex * 16 + 2);
-}
-
 int main(){
-  /*char buff[FILENAME_MAX];
-  GetCurrentDir( buff, FILENAME_MAX );
-  printf("Current working dir: %s\n", buff);
-  return 1;*/
 	char parentIndex = 0xFF;
 	char command[512]
 	loop(parentIndex);
@@ -92,6 +79,47 @@ int main(){
 		if(PathIndex == -1)
 		{
 			printString("No such file or directory");
+		}
+	}
+}
+*/
+
+void shell()
+{
+	char command[512];
+	char parentIndex = 0xFF;
+	int PathIndex = 0;
+	char files[1024];
+	readSector(files, 0x101);
+
+	while(1)
+	{
+		printString("~/");
+		printString(files + parentIndex * 16 + 2);
+		printString(" $ ");
+		PathIndex = 0;
+
+		readString(command);
+		if(command[0] == 'c' && command[1] == 'd' && command[2] == ' ')
+		{
+			if(command[3] == '.' && command[4] == '.' && command[5] == '\\')
+			{
+				parentIndex = getPathIndex(parentIndex, parentIndex);
+			}
+			else
+			{
+				PathIndex = getPathIndex(parentIndex, command + 3);
+				if(PathIndex != 0)
+				{
+					printString("No such file or directory");
+					printString("\n\r");
+				}
+				else
+				{
+					parentIndex = PathIndex;
+				}
+			}
+			
 		}
 	}
 }
