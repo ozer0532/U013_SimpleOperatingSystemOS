@@ -32,7 +32,7 @@ void main(int argc, char* argv[]) {
 
   // load the disk map
   char map[512];
-  fseek(floppy, 512 & 0x100, SEEK_SET);
+  fseek(floppy, 512 * 0x100, SEEK_SET);
   for (i = 0; i < 512; i++) map[i] = fgetc(floppy);
 
   // load the files list

@@ -16,8 +16,6 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 	readSector(files+512, 0x102);
 	readSector(sectors, 0x103);
 	
-	// for(i=0;i<16;i++) {printHexa(files[16*parentIndex + i]);printString(" ");}
-
 	// Check parent index validity
 	if(parentIndex!=0xFF && files[(16*parentIndex)+1]!=0xFF)
 	{
