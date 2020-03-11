@@ -74,7 +74,7 @@ int main () {
 		// }
 		readString(command);
 		printString(command);
-		writeFile(command, "apel", &flag, 0xFF);
+		writeFile(command, "ambon\0", &flag, 0xFF);
 		// writeFile(command, "cavendish", &flag, 0x00);
 	}
 }
@@ -138,13 +138,16 @@ char isStringEqual(char *a, char *b, int length) {
 
 	for (i = 0; i < length; i++) {
 		if (a[i] != b[i]) {
+			// printString(a);
+			// printString(b);
+			// printString("\r\n");
 			return 0;
 		}
 		if (a[i] == 0) {
+			printString("\r");
 			return 1;
 		}
 	}
-
 	return 1;
 }
 

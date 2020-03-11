@@ -28,19 +28,23 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 
 	// Check for empty row in files
 	for (filesRow = 0; filesRow < 64; filesRow++) {
-		
+
+		// If filename empty (no file/folder exists)...
+		if (files[(filesRow << 4) + 2] == 0)
+			break;
+
 		// If filename equal to other files...
-		if(isStringEqual(path, files + (filesRow << 4) + 2, stringLength(path, 512)))
+		if(/*files[(filesRow<<4) + 1] != 0xFF && */isStringEqual(path, files + (filesRow << 4) + 2, 14) == 1)
 		{
 			printString("Failed to write file, filename exists\n\r");
 			*sectors = -1;
 			return;
 
+		} else {
+			printString(path);
+			printString(" ");
+			printString(files + (filesRow<<4)+2);
 		}
-
-		// If filename empty (no file/folder exists)...
-		if (files[(filesRow << 4) + 2] == 0)
-			break;
 	}
 
 	// If files sector is full...
