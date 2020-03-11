@@ -28,6 +28,9 @@ int stringLength(char *string, int max);
 int getCurrentFolderIndex(char *currentPath);
 int getPathIndex(char parentIndex, char *filePath);
 
+// SHELL
+void shell();
+
 // MAIN FUNCTIONS
 void printBootLogo();
 
@@ -45,6 +48,7 @@ int main () {
 
 	printString("\n");
 
+<<<<<<< HEAD
     while (1) {
 		// printString("bushes:~ ");
 		// readString(command);
@@ -77,6 +81,9 @@ int main () {
 		writeFile(command, "ambon\0", &flag, 0xFF);
 		// writeFile(command, "cavendish", &flag, 0x00);
 	}
+=======
+    shell();
+>>>>>>> f46371294fa1f3325463ac9f306fd7d02ea936ed
 }
 
 void handleInterrupt21 (int AX, int BX, int CX, int DX) {
@@ -262,7 +269,7 @@ int getCurrentFolderIndex(char *currentPath) {
 	return P;
 }
 
-int getPathIndex(char parentIndex, char *filePath) {
+char getPathIndex(char parentIndex, char *filePath) {
 	char lineSize;
 	char maxFileCount;
 	char files[512 * 2];

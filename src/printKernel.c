@@ -13,6 +13,7 @@ void printInteger(int n) {
     int i;
     int length = 1;
 	char number[11];
+	char isNegative = 0;
 
     // If n is 0...
 	if(n == 0) {
@@ -20,6 +21,13 @@ void printInteger(int n) {
         return;
     }
     
+    // If is negative...
+    if(tmp<0)
+    {
+    	isNegative = 1;
+    	tmp = -tmp;
+    }
+
     // Check length of int
     while(tmp!=0)
     {
@@ -36,6 +44,7 @@ void printInteger(int n) {
 	}
     number[length] = 0;
 
+    if(isNegative) printString("-");
     printString(number);
 }
 
