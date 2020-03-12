@@ -8,6 +8,7 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 	int sectorToWrite;
 	int i;
 	int tmp;
+	char currentDirectory;
 
 	// Read map, files, sectors
 	// 0x100, 0x101-0x102, 0x103
@@ -17,11 +18,23 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 	readSector(sectors, 0x103);
 	
 	// Check parent index validity
-	if(parentIndex!=0xFF && files[(16*parentIndex)+1]!=0xFF)
+	if((files[(16*parentIndex)+1]!=0xFF) && (parentIndex != 0xFF))
 	{
 		printString("Failed to write file, folder invalid\n\r");
 		*sectors = -4;
 		return;
+	}
+
+	// Temp current dir 
+	currentDirectory = parentIndex;
+
+	// Check if a file with the same name exists
+	for (filesRow = 0; filesRow < 64; filesRow++) {
+		if ((files[filesRow * 16] == currentDirectory) && (isStringEqual(path, files + (filesRow * 16) + 2, 14) == 1)) {
+			printString("Failed to write file, filename exists\n\r");
+			*sectors = -1;
+			return;
+		}
 	}
 
 	// Check for empty row in files
@@ -31,18 +44,6 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 		if (files[(filesRow << 4) + 2] == 0)
 			break;
 
-		// If filename equal to other files...
-		if(/*files[(filesRow<<4) + 1] != 0xFF && */isStringEqual(path, files + (filesRow << 4) + 2, 14) == 1)
-		{
-			printString("Failed to write file, filename exists\n\r");
-			*sectors = -1;
-			return;
-
-		} else {
-			printString(path);
-			printString(" ");
-			printString(files + (filesRow<<4)+2);
-		}
 	}
 
 	// If files sector is full...
@@ -79,7 +80,7 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 	clear(files + (filesRow << 4), 16);
 	
 	// Set `P` value in files row
-	files[filesRow<<4] = parentIndex;
+	files[filesRow<<4] = currentDirectory;
 
 	// Set `S` value in files row
 	files[(filesRow<<4) + 1] = sectorsRow;
@@ -103,9 +104,7 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 		// Store sector number in sectors sector
 		sectors[(sectorsRow<<4) + i] = sectorToWrite;
 
-		printString("Writing to sector ");
-		printInteger(sectorToWrite);
-		printString("\n\r");
+		printString("Writing to sector");
 		writeSector(buffer + (i<<9), sectorToWrite);
 	}
 

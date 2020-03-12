@@ -45,6 +45,12 @@ int main () {
 
 	printString("\n");
 
+	readString(fileRead);
+	writeFile(fileRead, "abcdeg", &flag, 0xFF);
+	printString("Test");
+	readFile(fileRead, "abcdeg", &flag, 0x02);
+	printString(fileRead);
+
     while (1) {
 		// printString("bushes:~ ");
 		// readString(command);
@@ -112,7 +118,7 @@ void handleInterrupt21 (int AX, int BX, int CX, int DX) {
 
 int div(int a, int b) {
 	int x = 0;
-	while (a > b) {
+	while (a >= b) {
 		a -= b;
 		x++;
 	}
@@ -264,7 +270,6 @@ int getCurrentFolderIndex(char *currentPath) {
 
 int getPathIndex(char parentIndex, char *filePath) {
 	char lineSize;
-	char maxFileCount;
 	char files[512 * 2];
 	char idx;
 	char P;
@@ -272,9 +277,8 @@ int getPathIndex(char parentIndex, char *filePath) {
 	char isFileFound;
 
 	lineSize = 0x10;
-	maxFileCount = 0x40;
 	idx = 0;
-	P = 0xFF;
+	P = parentIndex;
 	pathReadPos = 0;
 	isFileFound = 0;
 
@@ -310,15 +314,17 @@ int getPathIndex(char parentIndex, char *filePath) {
 				// Read normally
 			}
 		} else {
-			if (isStringStartsWith(filePath + pathReadPos, files + idx * 16 + 2, 14)) {
-				pathReadPos += stringLength(idx, 14);
+			if (P != files[idx * 16]) {
+				idx++;
+			} else if (isStringStartsWith(filePath + pathReadPos, files + idx * 16 + 2, 14)) {
+				pathReadPos += stringLength(files + idx * 16 + 2, 14);
 				isFileFound = 1;
 				P = idx;
 				idx = 0;
 			} else {
 				idx++;
 			}
-			if (idx >= maxFileCount) {
+			if (idx >= 0x40) {
 				return -1;
 			}
 		}
