@@ -84,35 +84,101 @@ int main(){
 }
 */
 
-void shell()
+void printShell(char *filecontain)
+{
+	interrupt(0x21, 0x00, *filecontain, 0, 0);
+}
+
+void printPath(char path)
+{
+	char files[1024];
+	char *string;
+	int idx = 0;
+	int i = 0;
+	int filesrow;
+	printShell("~/");
+	if (path != 0xFF){
+		interrupt(0x21, 0x02, files, 0x101, 0);
+		for (filesrow = 0; filesrow < 64; filesrow++)
+		{
+			if((files[filesrow << 4]) == path)
+			{
+				break;
+			}
+		}
+		while(((files[(filesrow << 4) + 2 + i]) != 0x00) && ((filesrow << 4) + 2 + i) < ((filesrow << 4) + 16)){
+			string[idx++] = files[(filesrow << 4) + 2 + i];
+			i++;
+		}
+		printShell(string);
+	}
+	printShell("$");
+}
+
+char isStringStartsWith(char *a, char *b, int length) {
+	int i;
+
+	for (i = 0; i < length; i++) {
+		if (b[i] == 0) {
+			return 1;
+		}
+		if (a[i] != b[i]) {
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+
+//int main2()
+//{
+//	char command[512];
+//	char files[1024]
+//	char parentIndex = 0xFF;
+//	char currentPath = 0xFF;
+//
+//	while(1)
+//	{
+//		printPath(currentPath);
+//		interrupt(0x21, 0x01, command, 0, 0);
+//
+//	}
+//}
+
+int main()
 {
 	char command[512];
-	char parentIndex = 0xFF;
-	int PathIndex = 0;
 	char files[1024];
-	readSector(files, 0x101);
+	char parentIndex = 0xFF;
+	char currentPath = 0xFF;
+	char *programName;
+	int PathIndex = 0;
+	int idx;
+	int flag = 1;
+	int filesrow;
+	//readSector(files, 0x101);
 
 	while(1)
 	{
-		printString("~/");
-		printString(files + parentIndex * 16 + 2);
-		printString(" $ ");
+		printPath(currentPath);
+		//printString(files + parentIndex * 16 + 2);
+		//printString(" $ ");
 		PathIndex = 0;
-
-		readString(command);
+		interrupt(0x21, 0x01, command, 0, 0);
 		if(command[0] == 'c' && command[1] == 'd' && command[2] == ' ')
 		{
-			if(command[3] == '.' && command[4] == '.' && command[5] == '\\')
+			if(command[3] == '.' && command[4] == '.' && command[5] == '/')
 			{
-				parentIndex = getPathIndex(parentIndex, parentIndex);
+				//parentIndex = getPathIndex(parentIndex, parentIndex);
 			}
 			else
 			{
-				PathIndex = getPathIndex(parentIndex, command + 3);
+				//PathIndex = getPathIndex(parentIndex, command + 3);
 				if(PathIndex != 0)
 				{
-					printString("No such file or directory");
-					printString("\n\r");
+					//printShell("No such file or directory");
+					//printShell("\n\r");
 				}
 				else
 				{
@@ -120,6 +186,33 @@ void shell()
 				}
 			}
 			
+		}else if (command[0] == '.' && command[1] == '/')
+		{
+			for (idx = 0; idx < 14; filesrow++)
+			{
+				if (((filesrow << 4) + 2) == 0x00)
+				{
+					flag = 0;
+					break;
+				}else if (((filesrow << 4) + 2 + idx) == 0x00)
+				{
+					break;
+				}else if (((filesrow << 4) + 2 + idx) != command[idx+2])
+				{
+					flag = 0;
+					break;
+				}else
+				{
+					programName[idx] = command[idx+2];
+				}
+			}
+			if(flag == 1)
+			{
+				interrupt(0x21, 0x06, *programName, 0x2000, &flag);
+			}else
+			{
+				flag == 1;
+			}
 		}
 	}
 }

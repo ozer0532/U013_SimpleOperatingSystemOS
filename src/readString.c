@@ -1,6 +1,16 @@
 void readString(char *string) {
 	// Interrupt for reading keystroke (16)
 	int charInput = interrupt(0x16, 0, 0, 0, 0);
+	charInput = charInput >> 8;
+	if(charInput == 48)
+	{
+		buffer[0] = 128;
+		return;
+	}
+	else if(charInput == 50)
+	{
+		buffer[0] = 129;
+	}
 
 	// Initialize buffer position
 	int pos = 0;
