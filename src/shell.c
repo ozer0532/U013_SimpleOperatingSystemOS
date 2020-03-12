@@ -86,7 +86,7 @@ int main(){
 
 void printShell(char *filecontain)
 {
-	interrupt(0x21, 0x00, *filecontain, 0, 0);
+	interrupt(0x21, 0x00, filecontain, 0, 0);
 }
 
 void printPath(char path)
@@ -215,7 +215,7 @@ int main()
 	int flag = 1;
 	int filesrow;
 	//readSector(files, 0x101);
-
+	printShell("A");
 	while(1)
 	{
 		printPath(currentPath);
@@ -272,4 +272,5 @@ int main()
 			}
 		}
 	}
+	return 0;
 }

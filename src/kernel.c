@@ -78,6 +78,7 @@ int main () {
 		// if (isStringEqual(input, "cat", 100)) {
 		// 	printString("Pick a file to load: ")
 		// }
+		printString("a");
 		executeProgram("shell", 0x2000, &flag);
 		// writeFile(command, "cavendish", &flag, 0x00);
 	}
