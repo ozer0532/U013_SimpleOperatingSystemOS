@@ -3,18 +3,19 @@ void readString(char *string) {
 	int charInput = interrupt(0x16, 0, 0, 0, 0);
 	// Initialize buffer position
 	int pos = 0;
-	charInput = charInput >> 8;
+	// charInput = charInput >> 8;
 	
-	if(charInput == 48)
-	{
-		string[0] = 128;
-		return;
-	}
-	else if(charInput == 50)
-	{
-		string[0] = 129;
-		return;
-	}
+	// if(charInput == 48)
+	// {
+	// 	printString("dwdwdwdwd");
+	// 	string[0] = 128;
+	// 	return;
+	// }
+	// else if(charInput == 50)
+	// {
+	// 	string[0] = 129;
+	// 	return;
+	// }
 
 
 	while (charInput != '\r') {

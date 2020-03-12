@@ -10,7 +10,6 @@ void readFile(char *buffer, char *path, int *result, char parentIndex);
 void clear(char *buffer, int length); //Fungsi untuk mengisi buffer dengan 0
 void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex);
 void executeProgram(char *filename, int segment, int *success, char parentIndex);
-void returnToKernel(char *string);
 void putchar(int x, int y, char cc, char color);
 void printStringFormat(int x, int y, char *string, char color);
 
@@ -34,8 +33,8 @@ void printBootLogo();
 
 int main () {
 	char command[512];
-	char filename[512];
-	char fileRead[512 * 20];
+	// char filename[512];
+	// char fileRead[512 * 20];
 	int flag = 1;
 	int i;
 
@@ -45,42 +44,9 @@ int main () {
 
 	printString("\n");
 
-	readString(fileRead);
-	writeFile(fileRead, "abcdeg", &flag, 0xFF);
-	printString("Test");
-	readFile(fileRead, "abcdeg", &flag, 0x02);
-	printString(fileRead);
-
     while (1) {
-		// printString("bushes:~ ");
-		// readString(command);
-		// if(isStringEqual(command, "moo", 3))
-		// {
-		// 	executeProgram("moo", 0x2000, &flag);
-		// }
-		// else if(isStringEqual(command, "hello", 5))
-		// {
-		// 	executeProgram("hello", 0x2000, &flag);
-		// }
-		// else if(isStringEqual(command, "uwu", 3))
-		// {
-		// 	readFile(fileRead, "key.txt", &flag);
-		// 	printString(fileRead);
-		// 	printString("\r\n");
-		// }
-		// else if(isStringEqual(command, "milestone1", 10))
-		// {
-		// 	executeProgram("milestone1", 0x2000, &flag);
-		// }
-		// clear(fileRead, 512 * 20);
-		// printString("Write a command [cat|run|ls]: ");
-		// readString(input);
-		// if (isStringEqual(input, "cat", 100)) {
-		// 	printString("Pick a file to load: ")
-		// }
-		printString("a");
-		executeProgram("shell", 0x2000, &flag);
-		// writeFile(command, "cavendish", &flag, 0x00);
+    	// readString(command);
+		executeProgram("shell", 0x2000, &flag, 0xFF);
 	}
 }
 
@@ -180,29 +146,25 @@ int stringLength(char *string, int max) {
 }
 
 void executeProgram(char *filename, int segment, int *success, char parentIndex) {
-	char buffer[512 * 20];
+	char buffer[512 * 16];
 	int i;
 
-	clear(buffer, 512 * 20);
+	clear(buffer, 512 * 16);
 
-	readFile(buffer, filename, success, 0xFF);
+	readFile(buffer, filename, success, parentIndex);
 
 	if (*success == 0) {
-		printString("Siao a kenot launch edi a...");
+		printString("No such program is found.\n\r");
 		return;
 	}
 
-	for (i = 0; i < 512 * 20; i++) {
+	for (i = 0; i < 512 * 16; i++) {
 		putInMemory(segment, i, buffer[i]);
 	}
 
+	// Launch program (from kernel.asm)
 	launchProgram(segment);
-	// printString("Tescok");
-}
-
-void returnToKernel(char *string) {
-	int one = 1;
-	executeProgram(string, 0x3000, &one, 0xFF);
+	// printString("AAAAAAAAAAAAAAAAAAAA")
 }
 
 void printBootLogo() {

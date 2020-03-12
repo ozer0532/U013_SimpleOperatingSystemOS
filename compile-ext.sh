@@ -1,5 +1,7 @@
 #!/bin/bash
 
+gcc -o loadFile ./src/loadFile.c
+
 nasm -f as86 ./ass/lib.asm -o ./obj/lib.o
 
 bcc -ansi -c -o ./obj/shell.o ./src/shell.c

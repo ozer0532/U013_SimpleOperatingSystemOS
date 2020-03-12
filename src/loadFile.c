@@ -64,7 +64,7 @@ void main(int argc, char* argv[]) {
 
   // find a free entry in sectors
   for (i = 0; i < 32; i = i + 1)
-    if (sectors[i] == 0) break;
+    if (sectors[i<<4] == 0) break;
   if (i == 32) {
     printf("Not enough room in sectors\n");
     return;
