@@ -63,13 +63,7 @@ _interruptX:
 	mov bx,[bp+8]
 	mov cx,[bp+10]
 	mov dx,[bp+12]
-
-intr:	int 0x00	;call the interrupt (00 will be changed above)
-
-	mov ah, 00h    ;BIOS.GetKey
-    int 16h
-	pop bp
-	ret
+	jmp intr
 
 ;void makeInterrupt21()
 ;this sets up the interrupt 0x21 vector

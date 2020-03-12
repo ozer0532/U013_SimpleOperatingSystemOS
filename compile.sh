@@ -2,7 +2,7 @@
 
 # Declare filenames for compiling
 # Add ONLY the filenames in ./src directory; no extensions.
-declare -a filenames=("kernel" "writeFile" "readString" "printKernel" "readFile" "sectorOperations" "shell")
+declare -a filenames=("kernel" "writeFile" "readString" "printKernel" "readFile" "sectorOperations")
 
 # Compile files in src directory to object code
 for i in "${filenames[@]}"
