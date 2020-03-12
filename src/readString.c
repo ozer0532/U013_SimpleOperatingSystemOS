@@ -1,9 +1,21 @@
 void readString(char *string) {
 	// Interrupt for reading keystroke (16)
 	int charInput = interrupt(0x16, 0, 0, 0, 0);
-
 	// Initialize buffer position
 	int pos = 0;
+	charInput = charInput >> 8;
+	
+	if(charInput == 48)
+	{
+		string[0] = 128;
+		return;
+	}
+	else if(charInput == 50)
+	{
+		string[0] = 129;
+		return;
+	}
+
 
 	while (charInput != '\r') {
 		// If character is not backspace...

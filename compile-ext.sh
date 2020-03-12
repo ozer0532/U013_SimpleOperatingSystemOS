@@ -2,8 +2,8 @@
 
 nasm -f as86 ./ass/lib.asm -o ./obj/lib.o
 
-bcc -ansi -c -o ./obj/hello.o ./src/hello.c
+bcc -ansi -c -o ./obj/shell.o ./src/shell.c
 
-ld86 -o hello -d ./obj/hello.o ./obj/lib.o
+ld86 -o shell -d ./obj/shell.o ./obj/lib.o
 
-./loadFile hello
+./loadFile shell
