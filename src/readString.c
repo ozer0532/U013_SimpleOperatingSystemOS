@@ -1,4 +1,6 @@
-void readString(char *string) {
+abcd
+
+void readString(char *string, char* lastchar) {
 	char inputHigh;
 	char inputLow;
 

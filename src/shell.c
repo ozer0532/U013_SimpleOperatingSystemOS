@@ -3,18 +3,19 @@ void printPath(char path);
 int stringLength(char *string, int max);
 char isStringStartsWith(char *a, char *b, int length);
 int getPathIndex(char parentIndex, char *filePath);
-<<<<<<< HEAD
-void clear(char* buffer);
+// <<<<<<< HEAD
+// void clear(char* buffer);
 void printShellInteger(int n);
 int div(int a, int b);
 int mod(int a, int b);
-=======
+// =======
 void clear(char *buffer, int length);
->>>>>>> e230910d6d53974f590c48762c68cf04dd6a4eee
+// >>>>>>> e230910d6d53974f590c48762c68cf04dd6a4eee
 
 int main()
 {
 	char command[512];
+	char tmp[10];
 	char files[1024];
 	char history[3][512];
 	char parentIndex = 0xFF;
@@ -36,26 +37,29 @@ int main()
 	{
 		// Clear command buffer
 		// If previously is not arrow press, clear buffer
-		if(!wasArrowPressed)
-		{
-			printPath(parentIndex);
-			clear(command, 512);
-		}
-		else
-		{
-			printShell(command);
-		}
+		// if(!wasArrowPressed)
+		// {
+		// 	printPath(parentIndex);
+		// 	clear(command, 512);
+		// }
+		// else
+		// {
+		// 	printShell(command);
+		// }
+		printPath(parentIndex);
+		printShell(command);
 
 		wasArrowPressed = 0;
 
 		// Call readString() from kernel
 		interrupt(0x21, 0x01, command, 0, 0);
 
+		histIdx = histCount;
 		// Check for arrow key input
 		if(command[0] == 0x00 && histCount!=0)
 		{
-			wasArrowPressed = 1;
-			commandLength = 2;
+			// wasArrowPressed = 1;
+			// commandLength = 2;
 
 			// // Get current command length
 			// while(command[commandLength]!=0)
@@ -72,35 +76,43 @@ int main()
 			// printShell(" ");
 
 			// If up arrow detected...
-			if(command[1] == 0x48)
-			{
-				if(histIdx<histCount-1)
-				{
-					++histIdx;
-					clear(command, 512);
-
-					for(i = 0;i < 512;i++)
-						command[i] = history[histIdx][i];
-
-					// printShell(command);
-					// printShell(" taken from hist");
+			histIdx = histCount - 1;
+			while (1) {
+				if (command[2] != 0) {
+					interrupt(0x10, 0xe00 + '\b', 0xF, 0, 0);	// int 10=Video; AH 0e=TTY Output; BL 0F=White Front
+					interrupt(0x10, 0xe00 + ' ', 0xF, 0, 0);	// int 10=Video; AH 0e=TTY Output; BL 0F=White Front
+					interrupt(0x10, 0xe00 + '\b', 0xF, 0, 0);	// int 10=Video; AH 0e=TTY Output; BL 0F=White Front
+					for (i = 1; command[i] != 0; i++) {
+						interrupt(0x10, 0xe00 + '\b', 0xF, 0, 0);	// int 10=Video; AH 0e=TTY Output; BL 0F=White Front
+						interrupt(0x10, 0xe00 + ' ', 0xF, 0, 0);	// int 10=Video; AH 0e=TTY Output; BL 0F=White Front
+						interrupt(0x10, 0xe00 + '\b', 0xF, 0, 0);	// int 10=Video; AH 0e=TTY Output; BL 0F=White Front
+					}
+				}
+				clear(command, 512);
+				for (i = 0; i < 512; i++) {
+					command[i] = history[histIdx][i];
+				}
+				printShell(command);
+				// printShell(" taken from hist\n\r");
+				interrupt(0x21, 0x01, tmp, 0, 0);
+				if (tmp[0] == != 0) break;
+				if (tmp[1] != 0x48 && tmp[1] != 0x50) {
+					break;
+				}
+				if (tmp[1] == 0x48) {
+					histIdx--;
+					if (histIdx < 0) {
+						histIdx = 0;
+					}
+				} else {
+					histIdx++;
+					if (histIdx == histCount) {
+						histIdx = histCount - 1;
+					}
 				}
 			}
 
-			// If down arrow detected...
-			if(command[1] == 0x50)
-			{
-				if(histIdx>0)
-				{
-					--histIdx;
-					clear(command, 512);
-
-					for(i = 0;i < 512;i++)
-						command[i] = history[histIdx][i];
-				}
-			}
-
-			continue;
+			// break;
 		}
 
 		pathIndex = 0;
@@ -157,7 +169,7 @@ int main()
 				flag == 1;
 			}
 		}
-<<<<<<< HEAD
+// <<<<<<< HEAD
 
 		if(histCount<3)
 		{
@@ -169,9 +181,9 @@ int main()
 
 			histCount++;
 		}
-=======
+// =======
 		clear(command, 512);
->>>>>>> e230910d6d53974f590c48762c68cf04dd6a4eee
+// >>>>>>> e230910d6d53974f590c48762c68cf04dd6a4eee
 	}
 	return 0;
 }
@@ -303,13 +315,13 @@ int getPathIndex(char parentIndex, char *filePath) {
 	return P;
 }
 
-<<<<<<< HEAD
-void clear(char* buffer, int size)
-{
-	int i;
+// <<<<<<< HEAD
+// void clear(char* buffer, int size)
+// {
+// 	int i;
 
-	for(i=0;i<size;i++) buffer[i] = 0;
-}
+// 	for(i=0;i<size;i++) buffer[i] = 0;
+// }
 
 void printShellInteger(int n) {
 	int tmp = n;
@@ -370,7 +382,7 @@ int mod(int a, int b) {
 	}
 	return a;
 }
-=======
+// =======
 void clear(char *buffer, int length)
 {
 	int i;
@@ -407,4 +419,4 @@ void clear(char *buffer, int length)
 //		return (-1);
 //	}
 //}
->>>>>>> e230910d6d53974f590c48762c68cf04dd6a4eee
+// >>>>>>> e230910d6d53974f590c48762c68cf04dd6a4eee
