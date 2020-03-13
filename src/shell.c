@@ -3,7 +3,6 @@ void printPath(char path);
 int stringLength(char *string, int max);
 char isStringStartsWith(char *a, char *b, int length);
 int getPathIndex(char parentIndex, char *filePath);
-void clear(char* buffer);
 void printShellInteger(int n);
 int div(int a, int b);
 int mod(int a, int b);
@@ -125,9 +124,10 @@ int main()
 			}
 			
 		}
-		else if (command[0] == '.' && command[1] == '/')
+		if (command[0] == '.' && command[1] == '/')
 		{
-			for (idx = 0; idx < 14; filesrow++)
+			interrupt(0x21, 0xFF06, command + 2, 0x2000, &flag);
+			for (idx = 0; idx < 14; idx++)
 			{
 				if (((filesrow << 4) + 2) == 0x00)
 				{
@@ -147,7 +147,7 @@ int main()
 			}
 			if(flag == 1)
 			{
-				interrupt(0x21, 0x06, *programName, 0x2000, &flag);
+				interrupt(0x21, 0x06, programName, 0x2000, &flag);
 			}else
 			{
 				flag == 1;
@@ -307,13 +307,6 @@ int getPathIndex(char parentIndex, char *filePath) {
 	}
 
 	return P;
-}
-
-void clear(char* buffer, int size)
-{
-	int i;
-
-	for(i=0;i<size;i++) buffer[i] = 0;
 }
 
 void printShellInteger(int n) {
