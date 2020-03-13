@@ -14,7 +14,6 @@ int main()
 	char files[1024];
 	char history[3][512];
 	char parentIndex = 0xFF;
-	char currentPath = 0xFF;
 	char *programName;
 	char wasArrowPressed = 0;
 
@@ -126,32 +125,12 @@ int main()
 			}
 			
 		}
-		else if (command[0] == '.' && command[1] == '/')
+		if (command[0] == '.' && command[1] == '/')
 		{
-			for (idx = 0; idx < 14; filesrow++)
+			interrupt(0x21, 0xFF06, command + 2, 0x2000, &flag);
+			if (flag == -1)
 			{
-				if (((filesrow << 4) + 2) == 0x00)
-				{
-					flag = 0;
-					break;
-				}else if (((filesrow << 4) + 2 + idx) == 0x00)
-				{
-					break;
-				}else if (((filesrow << 4) + 2 + idx) != command[idx+2])
-				{
-					flag = 0;
-					break;
-				}else
-				{
-					programName[idx] = command[idx+2];
-				}
-			}
-			if(flag == 1)
-			{
-				interrupt(0x21, 0x06, *programName, 0x2000, &flag);
-			}else
-			{
-				flag == 1;
+				printShell("file not found");
 			}
 		}
 
@@ -176,28 +155,41 @@ void printShell(char *filecontain)
 	interrupt(0x21, 0x00, filecontain, 0, 0);
 }
 
-void printPath(char path)
+void printPath(int parentIdx)
 {
 	char files[1024];
 	char *string;
-	char parentPath;
-	int idx = 0;
-	int i = 0;
 	int filesrow;
+	int idx;
+	int i = 0;
 	
 	printShell("~/");
-	if (path != 0xFF){
+	filesrow = parentIdx;
+	if (filesrow != 0xFF){
 		// read sector
 		interrupt(0x21, 0x02, files, 0x101, 0);
-		parentPath = files[16 * path];
-		for (filesrow = 0; filesrow < 64; filesrow++)
+		while (files[filesrow << 4] != 0xFF)
 		{
-			if(files[filesrow << 4] == parentPath)
-				break;
-		}
-		while(((files[parentPath + 2 + i]) != 0x00) && ((parentPath) + 2 + i) < ((parentPath << 4) + 16)) {
-			string[idx++] = files[(parentPath) + 2 + i];
+			idx = 0;
+			while (files[(filesrow << 4) + 2 + idx] != 0x00)
+			{
+				string[i] = files[(filesrow << 4) + 2 + idx];
+				idx++;
+				i++;
+			}
+			string[i] = '/';
 			i++;
+			filesrow = files[filesrow << 4];
+		}
+		if (files[filesrow << 4] == 0xFF)
+		{
+			idx = 0;
+			while (files[(filesrow << 4) + 2 + idx] != 0x00)
+			{
+				string[i] = files[(filesrow << 4) + 2 + idx];
+				idx++;
+				i++;
+			}
 		}
 		printShell(string);
 	}
