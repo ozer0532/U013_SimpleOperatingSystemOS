@@ -24,10 +24,8 @@ void readFile(char *buffer, char *path, int *result, char parentIndex) {
 	// Baca sektor
 	secIdx = files[fileIdx * 16 + 1];
 
-
 	for (noSector = 0; noSector < 16; noSector++) {
 		secPos = secIdx * 16 + noSector;
-		
 		if (sectors[secPos] == 0) {
 			printString("End of file..\n\r");
 			break;

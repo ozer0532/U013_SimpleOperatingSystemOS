@@ -9,3 +9,5 @@ bcc -ansi -c -o ./obj/shell.o ./src/shell.c
 ld86 -o shell -d ./obj/shell.o ./obj/lib.o
 
 ./loadFile shell
+
+./loadFile hello

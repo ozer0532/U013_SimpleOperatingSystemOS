@@ -153,7 +153,7 @@ void executeProgram(char *filename, int segment, int *success, char parentIndex)
 
 	readFile(buffer, filename, success, parentIndex);
 
-	if (*success == 0) {
+	if (*success == -1) {
 		printString("No such program is found.\n\r");
 		return;
 	}

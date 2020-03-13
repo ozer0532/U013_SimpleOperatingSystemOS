@@ -3,14 +3,11 @@ void printPath(char path);
 int stringLength(char *string, int max);
 char isStringStartsWith(char *a, char *b, int length);
 int getPathIndex(char parentIndex, char *filePath);
-// <<<<<<< HEAD
-// void clear(char* buffer);
 void printShellInteger(int n);
 int div(int a, int b);
 int mod(int a, int b);
-// =======
+
 void clear(char *buffer, int length);
-// >>>>>>> e230910d6d53974f590c48762c68cf04dd6a4eee
 
 int main()
 {
@@ -19,7 +16,6 @@ int main()
 	char files[1024];
 	char history[3][512];
 	char parentIndex = 0xFF;
-	char currentPath = 0xFF;
 	char *programName;
 	char wasArrowPressed = 0;
 
@@ -61,18 +57,19 @@ int main()
 			// wasArrowPressed = 1;
 			// commandLength = 2;
 
-			// // Get current command length
-			// while(command[commandLength]!=0)
-			// 	commandLength++;
+			// printShell(command+2);
+			// Get current command length
+			while(command[commandLength]!=0)
+				commandLength++;
 
 			// printShellInteger(commandLength);
 			// printShell("\n\r");
 			// // commandLength--;
 
-			// for(i = 0;i<commandLength;i++)
-			// {
-			// 	printShell("\b \b");
-			// }
+			if(command[2] != 0) for(i = 0;i<commandLength;i++)
+			{
+				printShell("\b \b");
+			}
 			// printShell(" ");
 
 			// If up arrow detected...
@@ -95,7 +92,7 @@ int main()
 				printShell(command);
 				// printShell(" taken from hist\n\r");
 				interrupt(0x21, 0x01, tmp, 0, 0);
-				if (tmp[0] == != 0) break;
+				if (tmp[0] == 0) break;
 				if (tmp[1] != 0x48 && tmp[1] != 0x50) {
 					break;
 				}
@@ -141,49 +138,26 @@ int main()
 			}
 			
 		}
-		else if (command[0] == '.' && command[1] == '/')
+		if (command[0] == '.' && command[1] == '/')
 		{
-			for (idx = 0; idx < 14; filesrow++)
+			interrupt(0x21, 0xFF06, command + 2, 0x2000, &flag);
+			if (flag == -1)
 			{
-				if (((filesrow << 4) + 2) == 0x00)
-				{
-					flag = 0;
-					break;
-				}else if (((filesrow << 4) + 2 + idx) == 0x00)
-				{
-					break;
-				}else if (((filesrow << 4) + 2 + idx) != command[idx+2])
-				{
-					flag = 0;
-					break;
-				}else
-				{
-					programName[idx] = command[idx+2];
-				}
-			}
-			if(flag == 1)
-			{
-				interrupt(0x21, 0x06, *programName, 0x2000, &flag);
-			}else
-			{
-				flag == 1;
+				printShell("file not found\n\r");
 			}
 		}
-// <<<<<<< HEAD
 
 		if(histCount<3)
 		{
-			printShell(command);
-			printShell(" added to hist\n\r");
+			// printShell(command);
 
 			for(i = 0;i<512;i++)
 				history[histCount][i] = command[i];
 
 			histCount++;
 		}
-// =======
+
 		clear(command, 512);
-// >>>>>>> e230910d6d53974f590c48762c68cf04dd6a4eee
 	}
 	return 0;
 }
@@ -194,28 +168,41 @@ void printShell(char *filecontain)
 	interrupt(0x21, 0x00, filecontain, 0, 0);
 }
 
-void printPath(char path)
+void printPath(char parentIdx)
 {
 	char files[1024];
 	char *string;
-	char parentPath;
-	int idx = 0;
-	int i = 0;
 	int filesrow;
+	int idx;
+	int i = 0;
 	
 	printShell("~/");
-	if (path != 0xFF){
+	filesrow = parentIdx;
+	if (filesrow != 0xFF){
 		// read sector
 		interrupt(0x21, 0x02, files, 0x101, 0);
-		parentPath = files[16 * path];
-		for (filesrow = 0; filesrow < 64; filesrow++)
+		while (files[filesrow << 4] != 0xFF)
 		{
-			if(files[filesrow << 4] == parentPath)
-				break;
-		}
-		while(((files[parentPath + 2 + i]) != 0x00) && ((parentPath) + 2 + i) < ((parentPath << 4) + 16)) {
-			string[idx++] = files[(parentPath) + 2 + i];
+			idx = 0;
+			while (files[(filesrow << 4) + 2 + idx] != 0x00)
+			{
+				string[i] = files[(filesrow << 4) + 2 + idx];
+				idx++;
+				i++;
+			}
+			string[i] = '/';
 			i++;
+			filesrow = files[filesrow << 4];
+		}
+		if (files[filesrow << 4] == 0xFF)
+		{
+			idx = 0;
+			while (files[(filesrow << 4) + 2 + idx] != 0x00)
+			{
+				string[i] = files[(filesrow << 4) + 2 + idx];
+				idx++;
+				i++;
+			}
 		}
 		printShell(string);
 	}
@@ -315,14 +302,6 @@ int getPathIndex(char parentIndex, char *filePath) {
 	return P;
 }
 
-// <<<<<<< HEAD
-// void clear(char* buffer, int size)
-// {
-// 	int i;
-
-// 	for(i=0;i<size;i++) buffer[i] = 0;
-// }
-
 void printShellInteger(int n) {
 	int tmp = n;
     int i;
@@ -382,7 +361,6 @@ int mod(int a, int b) {
 	}
 	return a;
 }
-// =======
 void clear(char *buffer, int length)
 {
 	int i;
@@ -419,4 +397,3 @@ void clear(char *buffer, int length)
 //		return (-1);
 //	}
 //}
-// >>>>>>> e230910d6d53974f590c48762c68cf04dd6a4eee
