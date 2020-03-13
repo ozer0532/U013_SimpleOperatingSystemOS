@@ -3,10 +3,14 @@ void printPath(char path);
 int stringLength(char *string, int max);
 char isStringStartsWith(char *a, char *b, int length);
 int getPathIndex(char parentIndex, char *filePath);
+<<<<<<< HEAD
 void clear(char* buffer);
 void printShellInteger(int n);
 int div(int a, int b);
 int mod(int a, int b);
+=======
+void clear(char *buffer, int length);
+>>>>>>> e230910d6d53974f590c48762c68cf04dd6a4eee
 
 int main()
 {
@@ -14,6 +18,7 @@ int main()
 	char files[1024];
 	char history[3][512];
 	char parentIndex = 0xFF;
+	char currentPath = 0xFF;
 	char *programName;
 	char wasArrowPressed = 0;
 
@@ -119,6 +124,7 @@ int main()
 				else
 				{
 					parentIndex = pathIndex;
+					
 				}
 			}
 			
@@ -151,6 +157,7 @@ int main()
 				flag == 1;
 			}
 		}
+<<<<<<< HEAD
 
 		if(histCount<3)
 		{
@@ -162,6 +169,9 @@ int main()
 
 			histCount++;
 		}
+=======
+		clear(command, 512);
+>>>>>>> e230910d6d53974f590c48762c68cf04dd6a4eee
 	}
 	return 0;
 }
@@ -243,6 +253,7 @@ int getPathIndex(char parentIndex, char *filePath) {
 	interrupt(0x21, 0x02, files, 0x101, 0);
 	interrupt(0x21, 0x02, files + 512, 0x102, 0);
 
+	// Check starting code
 	// TODO: Optimize to not check current path
 	if (filePath[0] == '/') {	// If Root folder
 		pathReadPos ++;
@@ -255,27 +266,34 @@ int getPathIndex(char parentIndex, char *filePath) {
 
 	// Get index of filePath
 	while (filePath[pathReadPos] != 0x00) {
+		// Masuk kedalam folder
 		if (filePath[pathReadPos] == '/') {		// Go inside folder
 			if (isFileFound == 0) {
 				return -1;
 			}
 			isFileFound = 0;
 			pathReadPos++;
+		// Up satu folder
 		} else if (filePath[pathReadPos] == '.' && filePath[pathReadPos + 1] == '.' && filePath[pathReadPos + 2] == '/') {
 			if (P == 0xFF) return -1;
 			P = files[P * 16];
 			pathReadPos += 3;
+		// Cek nama folder/file dengan iterasi seluruh files
 		} else {
+			// File tidak di indeks parent
 			if (P != files[idx * 16]) {
 				idx++;
+			// File ketemu dan sesuai
 			} else if (isStringStartsWith(filePath + pathReadPos, files + idx * 16 + 2, 14)) {
 				pathReadPos += stringLength(idx, 14);
 				isFileFound = 1;
 				P = idx;
 				idx = 0;
+			// File beda, lanjut terus
 			} else {
 				idx++;
 			}
+			// Udah mentok
 			if (idx >= maxFileCount) {
 				return -1;
 			}
@@ -285,6 +303,7 @@ int getPathIndex(char parentIndex, char *filePath) {
 	return P;
 }
 
+<<<<<<< HEAD
 void clear(char* buffer, int size)
 {
 	int i;
@@ -351,3 +370,41 @@ int mod(int a, int b) {
 	}
 	return a;
 }
+=======
+void clear(char *buffer, int length)
+{
+	int i;
+	for (i = 0; i < length; i++) {
+		buffer[i] = 0;
+	}
+}
+
+//int getCurrentPathIdx(char parentPath, char *buffer, char *command)
+//{
+//	int filesrow;
+//	int idx;
+//	for (filesrow = 0; filesrow < 64; filesrow++)
+//	{
+//		if ((buffer[filesrow << 4] == parentPath) && (buffer[(filesrow << 4) + 1] == 0xFF))
+//		{
+//			idx = 0;
+//			while (buffer[(filesrow << 4) + 2 + idx] != 0x00)
+//			{
+//				if (buffer[(filesrow << 4) + 2 + idx] != command[3 + idx])
+//				{
+//					break;
+//				}
+//				idx++;
+//			}
+//		}
+//		if (buffer[(filesrow << 4) + 2 + idx] == 0x00)
+//		{
+//			return (filesrow << 4);
+//		}
+//	}
+//	if (filesrow == 64)
+//	{
+//		return (-1);
+//	}
+//}
+>>>>>>> e230910d6d53974f590c48762c68cf04dd6a4eee
