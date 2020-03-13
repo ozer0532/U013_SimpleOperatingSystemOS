@@ -3,26 +3,103 @@ void printPath(char path);
 int stringLength(char *string, int max);
 char isStringStartsWith(char *a, char *b, int length);
 int getPathIndex(char parentIndex, char *filePath);
+void clear(char* buffer);
+void printShellInteger(int n);
+int div(int a, int b);
+int mod(int a, int b);
 void clear(char *buffer, int length);
 
 int main()
 {
 	char command[512];
 	char files[1024];
+	char history[3][512];
 	char parentIndex = 0xFF;
 	char *programName;
+	char wasArrowPressed = 0;
+
+	int histCount = 0;
+	int histIdx = -1;
 	int pathIndex = 0;
 	int idx;
 	int flag = 1;
 	int filesrow;
+	int i;
+	int commandLength;
 	// readSector(files, 0x101);
+
 	while(1)
 	{
-		printPath(parentIndex);
-		pathIndex = 0;
+		// Clear command buffer
+		// If previously is not arrow press, clear buffer
+		if(!wasArrowPressed)
+		{
+			printPath(parentIndex);
+			clear(command, 512);
+		}
+		else
+		{
+			printShell(command);
+		}
+
+		wasArrowPressed = 0;
 
 		// Call readString() from kernel
 		interrupt(0x21, 0x01, command, 0, 0);
+
+		// Check for arrow key input
+		if(command[0] == 0x00 && histCount!=0)
+		{
+			wasArrowPressed = 1;
+			commandLength = 2;
+
+			// // Get current command length
+			// while(command[commandLength]!=0)
+			// 	commandLength++;
+
+			// printShellInteger(commandLength);
+			// printShell("\n\r");
+			// // commandLength--;
+
+			// for(i = 0;i<commandLength;i++)
+			// {
+			// 	printShell("\b \b");
+			// }
+			// printShell(" ");
+
+			// If up arrow detected...
+			if(command[1] == 0x48)
+			{
+				if(histIdx<histCount-1)
+				{
+					++histIdx;
+					clear(command, 512);
+
+					for(i = 0;i < 512;i++)
+						command[i] = history[histIdx][i];
+
+					// printShell(command);
+					// printShell(" taken from hist");
+				}
+			}
+
+			// If down arrow detected...
+			if(command[1] == 0x50)
+			{
+				if(histIdx>0)
+				{
+					--histIdx;
+					clear(command, 512);
+
+					for(i = 0;i < 512;i++)
+						command[i] = history[histIdx][i];
+				}
+			}
+
+			continue;
+		}
+
+		pathIndex = 0;
 
 		// If command is `cd`...
 		if(command[0] == 'c' && command[1] == 'd' && command[2] == ' ')
@@ -47,7 +124,8 @@ int main()
 				}
 			}
 			
-		}else if (command[0] == '.' && command[1] == '/')
+		}
+		else if (command[0] == '.' && command[1] == '/')
 		{
 			for (idx = 0; idx < 14; filesrow++)
 			{
@@ -74,6 +152,17 @@ int main()
 			{
 				flag == 1;
 			}
+		}
+
+		if(histCount<3)
+		{
+			printShell(command);
+			printShell(" added to hist\n\r");
+
+			for(i = 0;i<512;i++)
+				history[histCount][i] = command[i];
+
+			histCount++;
 		}
 		clear(command, 512);
 	}
@@ -220,6 +309,72 @@ int getPathIndex(char parentIndex, char *filePath) {
 	return P;
 }
 
+void clear(char* buffer, int size)
+{
+	int i;
+
+	for(i=0;i<size;i++) buffer[i] = 0;
+}
+
+void printShellInteger(int n) {
+	int tmp = n;
+    int i;
+    int length = 0;
+	char isNegative = 0;
+	char number[11];
+
+    // If n is 0...
+	if(n == 0) {
+        printShell("0");
+        return;
+    }
+    
+    // If is negative...
+    if(tmp<0)
+    {
+    	isNegative = 1;
+    	tmp = -tmp;
+    }
+
+    // Check length of int
+    while(tmp!=0)
+    {
+        tmp = div(tmp, 10);
+        ++length;
+    }
+
+    tmp = n;
+
+	for(i=length-1;i>=0;i--)
+	{
+		number[i] = mod(tmp,10) + '0';
+		// printShell(number+i);
+		tmp = div(tmp, 10);
+	}
+
+    number[length] = 0;
+
+    if(isNegative)
+    	printShell("-");
+
+    printShell(number);
+}
+
+int div(int a, int b) {
+	int x = 0;
+	while (a >= b) {
+		a -= b;
+		x++;
+	}
+	return x;
+}
+
+int mod(int a, int b) {
+	while (a >= b) {
+		a -= b;
+	}
+	return a;
+}
 void clear(char *buffer, int length)
 {
 	int i;
