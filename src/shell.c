@@ -29,12 +29,12 @@ int main()
 			// If going down one directory...
 			if(command[3] == '.' && command[4] == '.' && command[5] == '/')
 			{
-				parentIndex = getPathIndex(parentIndex, parentIndex);
+				parentIndex = getPathIndex(parentIndex, "../");
 			}
 			else
 			{
 				pathIndex = getPathIndex(parentIndex, command + 3);
-				if(pathIndex != 0)
+				if(pathIndex == -1)
 				{
 					printShell("No such file or directory");
 					printShell("\n\r");
@@ -102,7 +102,7 @@ void printPath(char path)
 			if(files[filesrow << 4] == parentPath)
 				break;
 		}
-		while(((files[parentPath + 2 + i]) != 0x00) && ((parentPath) + 2 + i) < ((parentPath << 4) + 16)){
+		while(((files[parentPath + 2 + i]) != 0x00) && ((parentPath) + 2 + i) < ((parentPath << 4) + 16)) {
 			string[idx++] = files[(parentPath) + 2 + i];
 			i++;
 		}
@@ -147,7 +147,7 @@ int getPathIndex(char parentIndex, char *filePath) {
 	lineSize = 0x10;
 	maxFileCount = 0x40;
 	idx = 0;
-	P = 0xFF;
+	P = parentIndex;
 	pathReadPos = 0;
 	isFileFound = 0;
 
@@ -172,18 +172,14 @@ int getPathIndex(char parentIndex, char *filePath) {
 			}
 			isFileFound = 0;
 			pathReadPos++;
-		} else if (filePath[pathReadPos] == '.') {
-			pathReadPos++;
-			// parent folder
-			if (filePath[pathReadPos] == '.' && filePath[pathReadPos + 1] == '.' && filePath[pathReadPos + 2] == '/') {
-				if (P == 0xFF) return -1;
-				P = files[P * 16];
-				pathReadPos += 3;
-			} else {
-				// Read normally
-			}
+		} else if (filePath[pathReadPos] == '.' && filePath[pathReadPos + 1] == '.' && filePath[pathReadPos + 2] == '/') {
+			if (P == 0xFF) return -1;
+			P = files[P * 16];
+			pathReadPos += 3;
 		} else {
-			if (isStringStartsWith(filePath + pathReadPos, files + idx * 16 + 2, 14)) {
+			if (P != files[idx * 16]) {
+				idx++;
+			} else if (isStringStartsWith(filePath + pathReadPos, files + idx * 16 + 2, 14)) {
 				pathReadPos += stringLength(idx, 14);
 				isFileFound = 1;
 				P = idx;
