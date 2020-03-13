@@ -127,30 +127,9 @@ int main()
 		if (command[0] == '.' && command[1] == '/')
 		{
 			interrupt(0x21, 0xFF06, command + 2, 0x2000, &flag);
-			for (idx = 0; idx < 14; idx++)
+			if (flag == -1)
 			{
-				if (((filesrow << 4) + 2) == 0x00)
-				{
-					flag = 0;
-					break;
-				}else if (((filesrow << 4) + 2 + idx) == 0x00)
-				{
-					break;
-				}else if (((filesrow << 4) + 2 + idx) != command[idx+2])
-				{
-					flag = 0;
-					break;
-				}else
-				{
-					programName[idx] = command[idx+2];
-				}
-			}
-			if(flag == 1)
-			{
-				interrupt(0x21, 0x06, programName, 0x2000, &flag);
-			}else
-			{
-				flag == 1;
+				printShell("file not found");
 			}
 		}
 
