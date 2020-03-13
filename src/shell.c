@@ -31,12 +31,12 @@ int main()
 			// If going down one directory...
 			if(command[3] == '.' && command[4] == '.' && command[5] == '/')
 			{
-				parentIndex = getPathIndex(parentIndex, parentIndex);
+				parentIndex = getPathIndex(parentIndex, "../");
 			}
 			else
 			{
 				pathIndex = getPathIndex(parentIndex, command + 3);
-				if(pathIndex != 0)
+				if(pathIndex == -1)
 				{
 					printShell("No such file or directory");
 					printShell("\n\r");
@@ -100,13 +100,13 @@ void printPath(char path)
 	if (path != 0xFF){
 		// read sector
 		interrupt(0x21, 0x02, files, 0x101, 0);
-		parentPath = files[(filesrow << 4) + 16 * path];
+		parentPath = files[16 * path];
 		for (filesrow = 0; filesrow < 64; filesrow++)
 		{
 			if(files[filesrow << 4] == parentPath)
 				break;
 		}
-		while(((files[parentPath + 2 + i]) != 0x00) && ((parentPath) + 2 + i) < ((parentPath << 4) + 16)){
+		while(((files[parentPath + 2 + i]) != 0x00) && ((parentPath) + 2 + i) < ((parentPath << 4) + 16)) {
 			string[idx++] = files[(parentPath) + 2 + i];
 			i++;
 		}
@@ -151,13 +151,14 @@ int getPathIndex(char parentIndex, char *filePath) {
 	lineSize = 0x10;
 	maxFileCount = 0x40;
 	idx = 0;
-	P = 0xFF;
+	P = parentIndex;
 	pathReadPos = 0;
 	isFileFound = 0;
 
 	interrupt(0x21, 0x02, files, 0x101, 0);
 	interrupt(0x21, 0x02, files + 512, 0x102, 0);
 
+	// Check starting code
 	// TODO: Optimize to not check current path
 	if (filePath[0] == '/') {	// If Root folder
 		pathReadPos ++;
@@ -170,31 +171,34 @@ int getPathIndex(char parentIndex, char *filePath) {
 
 	// Get index of filePath
 	while (filePath[pathReadPos] != 0x00) {
+		// Masuk kedalam folder
 		if (filePath[pathReadPos] == '/') {		// Go inside folder
 			if (isFileFound == 0) {
 				return -1;
 			}
 			isFileFound = 0;
 			pathReadPos++;
-		} else if (filePath[pathReadPos] == '.') {
-			pathReadPos++;
-			// parent folder
-			if (filePath[pathReadPos] == '.' && filePath[pathReadPos + 1] == '.' && filePath[pathReadPos + 2] == '/') {
-				if (P == 0xFF) return -1;
-				P = files[P * 16];
-				pathReadPos += 3;
-			} else {
-				// Read normally
-			}
+		// Up satu folder
+		} else if (filePath[pathReadPos] == '.' && filePath[pathReadPos + 1] == '.' && filePath[pathReadPos + 2] == '/') {
+			if (P == 0xFF) return -1;
+			P = files[P * 16];
+			pathReadPos += 3;
+		// Cek nama folder/file dengan iterasi seluruh files
 		} else {
-			if (isStringStartsWith(filePath + pathReadPos, files + idx * 16 + 2, 14)) {
+			// File tidak di indeks parent
+			if (P != files[idx * 16]) {
+				idx++;
+			// File ketemu dan sesuai
+			} else if (isStringStartsWith(filePath + pathReadPos, files + idx * 16 + 2, 14)) {
 				pathReadPos += stringLength(idx, 14);
 				isFileFound = 1;
 				P = idx;
 				idx = 0;
+			// File beda, lanjut terus
 			} else {
 				idx++;
 			}
+			// Udah mentok
 			if (idx >= maxFileCount) {
 				return -1;
 			}

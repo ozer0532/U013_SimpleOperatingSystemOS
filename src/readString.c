@@ -1,8 +1,12 @@
 void readString(char *string) {
+	char inputHigh;
+	char inputLow;
 	// Interrupt for reading keystroke (16)
 	int charInput = interrupt(0x16, 0, 0, 0, 0);
 	// Initialize buffer position
 	int pos = 0;
+	inputHigh = charInput >> 8;
+	inputLow = charInput & 0x00FF;
 	// charInput = charInput >> 8;
 	
 	// if(charInput == 48)
@@ -18,12 +22,12 @@ void readString(char *string) {
 	// }
 
 
-	while (charInput != '\r') {
+	while (inputLow != '\r') {
 		// If character is not backspace...
-		if (charInput != '\b')
+		if (inputLow != '\b')
 		{
-			string[pos++] = charInput;
-			interrupt(0x10, 0xe00 + charInput, 0xF, 0, 0);	// int 10=Video; AH 0e=TTY Output; BL 0F=White Front
+			string[pos++] = inputLow;
+			interrupt(0x10, 0xe00 + inputLow, 0xF, 0, 0);	// int 10=Video; AH 0e=TTY Output; BL 0F=White Front
 		}
 		// If character is backspace and position is not 0 (not at starting point)
 		else if(pos>0)
@@ -37,6 +41,8 @@ void readString(char *string) {
 			string[--pos] = 0;
 		}
 		charInput = interrupt(0x16, 0, 0, 0, 0);		// int 16=Keyboard; Ah 00=Get Keystroke Ret AH= char input
+		inputHigh = charInput >> 8;
+		inputLow = charInput & 0x00FF;
 	} 
 	// CRLF
 	interrupt(0x10, 0xe00 + '\n', 0xF, 0, 0);		// int 10=Video; AH 0e=TTY Output; BL 0F=White Front

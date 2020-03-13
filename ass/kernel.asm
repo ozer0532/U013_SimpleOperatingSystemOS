@@ -7,7 +7,6 @@
 
 global _putInMemory
 global _interrupt
-global _interruptX
 global _makeInterrupt21
 global _launchProgram
 extern _handleInterrupt21
@@ -44,7 +43,7 @@ _interrupt:
 
 intr:	int 0x00	;call the interrupt (00 will be changed above)
 
-	mov ah,0	;we only want AL returned
+	;mov ah,0	;we only want AL returned
 	pop bp
 	ret
 
