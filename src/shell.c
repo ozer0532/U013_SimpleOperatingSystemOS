@@ -96,7 +96,7 @@ void printPath(char path)
 	if (path != 0xFF){
 		// read sector
 		interrupt(0x21, 0x02, files, 0x101, 0);
-		parentPath = files[(filesrow << 4) + 16 * path];
+		parentPath = files[16 * path];
 		for (filesrow = 0; filesrow < 64; filesrow++)
 		{
 			if(files[filesrow << 4] == parentPath)
