@@ -3,12 +3,14 @@ void printPath(char path);
 int stringLength(char *string, int max);
 char isStringStartsWith(char *a, char *b, int length);
 int getPathIndex(char parentIndex, char *filePath);
+void clear(char *buffer, int length);
 
 int main()
 {
 	char command[512];
 	char files[1024];
 	char parentIndex = 0xFF;
+	char currentPath = 0xFF;
 	char *programName;
 	int pathIndex = 0;
 	int idx;
@@ -42,6 +44,7 @@ int main()
 				else
 				{
 					parentIndex = pathIndex;
+					
 				}
 			}
 			
@@ -73,6 +76,7 @@ int main()
 				flag == 1;
 			}
 		}
+		clear(command, 512);
 	}
 	return 0;
 }
@@ -199,3 +203,40 @@ int getPathIndex(char parentIndex, char *filePath) {
 
 	return P;
 }
+
+void clear(char *buffer, int length)
+{
+	int i;
+	for (i = 0; i < length; i++) {
+		buffer[i] = 0;
+	}
+}
+
+//int getCurrentPathIdx(char parentPath, char *buffer, char *command)
+//{
+//	int filesrow;
+//	int idx;
+//	for (filesrow = 0; filesrow < 64; filesrow++)
+//	{
+//		if ((buffer[filesrow << 4] == parentPath) && (buffer[(filesrow << 4) + 1] == 0xFF))
+//		{
+//			idx = 0;
+//			while (buffer[(filesrow << 4) + 2 + idx] != 0x00)
+//			{
+//				if (buffer[(filesrow << 4) + 2 + idx] != command[3 + idx])
+//				{
+//					break;
+//				}
+//				idx++;
+//			}
+//		}
+//		if (buffer[(filesrow << 4) + 2 + idx] == 0x00)
+//		{
+//			return (filesrow << 4);
+//		}
+//	}
+//	if (filesrow == 64)
+//	{
+//		return (-1);
+//	}
+//}
