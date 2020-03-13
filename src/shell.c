@@ -10,7 +10,6 @@ int main()
 	char command[512];
 	char files[1024];
 	char parentIndex = 0xFF;
-	char currentPath = 0xFF;
 	char *programName;
 	int pathIndex = 0;
 	int idx;
@@ -87,28 +86,41 @@ void printShell(char *filecontain)
 	interrupt(0x21, 0x00, filecontain, 0, 0);
 }
 
-void printPath(char path)
+void printPath(int parentIdx)
 {
 	char files[1024];
 	char *string;
-	char parentPath;
-	int idx = 0;
-	int i = 0;
 	int filesrow;
+	int idx;
+	int i = 0;
 	
 	printShell("~/");
-	if (path != 0xFF){
+	filesrow = parentIdx;
+	if (filesrow != 0xFF){
 		// read sector
 		interrupt(0x21, 0x02, files, 0x101, 0);
-		parentPath = files[16 * path];
-		for (filesrow = 0; filesrow < 64; filesrow++)
+		while (files[filesrow << 4] != 0xFF)
 		{
-			if(files[filesrow << 4] == parentPath)
-				break;
-		}
-		while(((files[parentPath + 2 + i]) != 0x00) && ((parentPath) + 2 + i) < ((parentPath << 4) + 16)) {
-			string[idx++] = files[(parentPath) + 2 + i];
+			idx = 0;
+			while (files[(filesrow << 4) + 2 + idx] != 0x00)
+			{
+				string[i] = files[(filesrow << 4) + 2 + idx];
+				idx++;
+				i++;
+			}
+			string[i] = '/';
 			i++;
+			filesrow = files[filesrow << 4];
+		}
+		if (files[filesrow << 4] == 0xFF)
+		{
+			idx = 0;
+			while (files[(filesrow << 4) + 2 + idx] != 0x00)
+			{
+				string[i] = files[(filesrow << 4) + 2 + idx];
+				idx++;
+				i++;
+			}
 		}
 		printShell(string);
 	}
@@ -215,32 +227,3 @@ void clear(char *buffer, int length)
 		buffer[i] = 0;
 	}
 }
-
-//int getCurrentPathIdx(char parentPath, char *buffer, char *command)
-//{
-//	int filesrow;
-//	int idx;
-//	for (filesrow = 0; filesrow < 64; filesrow++)
-//	{
-//		if ((buffer[filesrow << 4] == parentPath) && (buffer[(filesrow << 4) + 1] == 0xFF))
-//		{
-//			idx = 0;
-//			while (buffer[(filesrow << 4) + 2 + idx] != 0x00)
-//			{
-//				if (buffer[(filesrow << 4) + 2 + idx] != command[3 + idx])
-//				{
-//					break;
-//				}
-//				idx++;
-//			}
-//		}
-//		if (buffer[(filesrow << 4) + 2 + idx] == 0x00)
-//		{
-//			return (filesrow << 4);
-//		}
-//	}
-//	if (filesrow == 64)
-//	{
-//		return (-1);
-//	}
-//}
