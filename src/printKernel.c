@@ -31,7 +31,7 @@ void printInteger(int n) {
     // Check length of int
     while(tmp>0)
     {
-        tmp = div(tmp/10);
+        tmp = div(tmp, 10);
         ++length;
     }
 
