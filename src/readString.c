@@ -59,5 +59,5 @@ void readString(char *string) {
 	interrupt(0x10, 0xe00 + '\n', 0xF, 0, 0);		// int 10=Video; AH 0e=TTY Output; BL 0F=White Front
 	interrupt(0x10, 0xe00 + '\r', 0xF, 0, 0);		// int 10=Video; AH 0e=TTY Output; BL 0F=White Front
 
-	// string[pos] = 0;
+	string[pos] = 0;
 }

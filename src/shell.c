@@ -3,14 +3,10 @@ void printPath(char path);
 int stringLength(char *string, int max);
 char isStringStartsWith(char *a, char *b, int length);
 int getPathIndex(char parentIndex, char *filePath);
-<<<<<<< HEAD
 void clear(char* buffer);
 void printShellInteger(int n);
 int div(int a, int b);
 int mod(int a, int b);
-=======
-void clear(char *buffer, int length);
->>>>>>> e230910d6d53974f590c48762c68cf04dd6a4eee
 
 int main()
 {
@@ -57,18 +53,19 @@ int main()
 			wasArrowPressed = 1;
 			commandLength = 2;
 
-			// // Get current command length
-			// while(command[commandLength]!=0)
-			// 	commandLength++;
+			// printShell(command+2);
+			// Get current command length
+			while(command[commandLength]!=0)
+				commandLength++;
 
 			// printShellInteger(commandLength);
 			// printShell("\n\r");
 			// // commandLength--;
 
-			// for(i = 0;i<commandLength;i++)
-			// {
-			// 	printShell("\b \b");
-			// }
+			if(command[2] != 0) for(i = 0;i<commandLength;i++)
+			{
+				printShell("\b \b");
+			}
 			// printShell(" ");
 
 			// If up arrow detected...
@@ -157,7 +154,6 @@ int main()
 				flag == 1;
 			}
 		}
-<<<<<<< HEAD
 
 		if(histCount<3)
 		{
@@ -169,9 +165,7 @@ int main()
 
 			histCount++;
 		}
-=======
 		clear(command, 512);
->>>>>>> e230910d6d53974f590c48762c68cf04dd6a4eee
 	}
 	return 0;
 }
@@ -303,7 +297,6 @@ int getPathIndex(char parentIndex, char *filePath) {
 	return P;
 }
 
-<<<<<<< HEAD
 void clear(char* buffer, int size)
 {
 	int i;
@@ -370,14 +363,6 @@ int mod(int a, int b) {
 	}
 	return a;
 }
-=======
-void clear(char *buffer, int length)
-{
-	int i;
-	for (i = 0; i < length; i++) {
-		buffer[i] = 0;
-	}
-}
 
 //int getCurrentPathIdx(char parentPath, char *buffer, char *command)
 //{
@@ -407,4 +392,3 @@ void clear(char *buffer, int length)
 //		return (-1);
 //	}
 //}
->>>>>>> e230910d6d53974f590c48762c68cf04dd6a4eee
