@@ -162,39 +162,45 @@ void printShell(char *filecontain)
 void printPath(char parentIdx)
 {
 	char files[1024];
-	char *string;
+	char string[16 * 32 + 1];
+	char folderOrder[32];
 	int filesrow;
 	int idx;
-	int i = 0;
+	int i;
+	int j = 0;
 	
 	printShell("~/");
 	filesrow = parentIdx;
 	if (filesrow != 0xFF){
 		// read sector
 		interrupt(0x21, 0x02, files, 0x101, 0);
-		while (files[filesrow << 4] != 0xFF)
+		interrupt(0x21, 0x02, files + 512, 0x102, 0);
+
+		// traceback to root
+		idx = 0;
+		while (filesrow != 0xFF)
 		{
-			idx = 0;
-			while (files[(filesrow << 4) + 2 + idx] != 0x00)
-			{
-				string[i] = files[(filesrow << 4) + 2 + idx];
-				idx++;
-				i++;
-			}
-			string[i] = '/';
-			i++;
-			filesrow = files[filesrow << 4];
+			folderOrder[idx] = filesrow;
+			idx++;
+			filesrow = files[filesrow * 16];
 		}
-		if (files[filesrow << 4] == 0xFF)
+		// string generation
+		while (idx != 0)
 		{
-			idx = 0;
-			while (files[(filesrow << 4) + 2 + idx] != 0x00)
+			idx--;
+			i = 0;
+			while (files[(folderOrder[idx] * 16) + 2 + i] != 0x00)
 			{
-				string[i] = files[(filesrow << 4) + 2 + idx];
-				idx++;
+				string[j] = files[(folderOrder[idx] * 16) + 2 + i];
 				i++;
+				j++;
+			}
+			if (idx != 0) {
+				string[j] = '/';
+				j++;
 			}
 		}
+		string[j] = 0;
 		printShell(string);
 	}
 
