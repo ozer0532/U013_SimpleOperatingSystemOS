@@ -52,6 +52,7 @@ int main () {
 	// }
 
 	// What's supposed to be here
+	clear(command, 512);
 	executeProgram("shell", 0x2000, &flag, 0xFF);
     while (1) {
 		printString("Enter a program to execute: ");
@@ -164,7 +165,7 @@ void executeProgram(char *filename, int segment, int *success, char parentIndex)
 	readFile(buffer, filename, success, parentIndex);
 
 	if (*success == -1) {
-		printString("No such program is found.\n\r");
+		printString("No such program is found. ulululululululululululululululululululul\n\r");
 		return;
 	}
 
@@ -191,52 +192,6 @@ void printBootLogo() {
 	printString("    | '_ \\| | | / __| '_ \\ / _ \\/ __|      \r\n");
 	printString("    | |_) | |_| \\__ \\ | | |  __/\\__ \\     \r\n");
 	printString("    |_.__/ \\__,_|___/_| |_|\\___||___/       \r\n");
-                                  
-
-}
-
-int getCurrentFolderIndex(char *currentPath) {
-	char lineSize;
-	char maxFileCount;
-	char files[512 * 2];
-	char idx;
-	char P;
-	char pathReadPos;
-	char isFileFound;
-
-	lineSize = 0x10;
-	maxFileCount = 0x40;
-	idx = 0;
-	P = 0xFF;
-	pathReadPos = 0;
-	isFileFound = 1;
-
-	readSector(files, 0x101);
-	readSector(files + 512, 0x102);
-	
-	// Get index of current path
-	while (currentPath[pathReadPos] != 0x00) {
-		if (currentPath[pathReadPos] == '/') {
-			if (isFileFound == 0) {
-				return -1;
-			}
-			isFileFound = 0;
-			pathReadPos++;
-		} else {
-			if (isStringStartsWith(currentPath + pathReadPos, files + idx * 16 + 2, 14)) {
-				pathReadPos += stringLength(idx, 14);
-				isFileFound = 1;
-				P = idx;
-				idx = 0;
-			} else {
-				idx++;
-			}
-			if (idx >= maxFileCount) {
-				return -1;
-			}
-		}
-	}
-	return P;
 }
 
 int getPathIndex(char parentIndex, char *filePath) {
