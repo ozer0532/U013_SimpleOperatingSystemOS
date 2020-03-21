@@ -117,30 +117,21 @@ int main()
 		// If command is `cd`...
 		if(command[0] == 'c' && command[1] == 'd' && command[2] == ' ')
 		{
-			// If going down one directory...
-			if(command[3] == '.' && command[4] == '.' && command[5] == '/')
+			pathIndex = getPathIndex(parentIndex, command + 3);
+			if(pathIndex == -1)
 			{
-				parentIndex = getPathIndex(parentIndex, "../");
+				printShell("No such file or directory");
+				printShell("\n\r");
 			}
 			else
 			{
-				pathIndex = getPathIndex(parentIndex, command + 3);
-				if(pathIndex == -1)
-				{
-					printShell("No such file or directory");
-					printShell("\n\r");
-				}
-				else
-				{
-					parentIndex = pathIndex;
-					
-				}
+				parentIndex = pathIndex;
+				
 			}
-			
 		}
 		if (command[0] == '.' && command[1] == '/')
 		{
-			interrupt(0x21, 0xFF06, command + 2, 0x2000, &flag);
+			interrupt(0x21, 0xFF06, command + 2, 0x3000, &flag);
 			if (flag == -1)
 			{
 				printShell("file not found\n\r");
@@ -282,9 +273,11 @@ int getPathIndex(char parentIndex, char *filePath) {
 			// File tidak di indeks parent
 			if (P != files[idx * 16]) {
 				idx++;
+			} else if (files[idx * 16 + 2] == 0) {
+				idx++;
 			// File ketemu dan sesuai
 			} else if (isStringStartsWith(filePath + pathReadPos, files + idx * 16 + 2, 14)) {
-				pathReadPos += stringLength(idx, 14);
+				pathReadPos += stringLength(files + idx * 16 + 2, 14);
 				isFileFound = 1;
 				P = idx;
 				idx = 0;
@@ -305,9 +298,9 @@ int getPathIndex(char parentIndex, char *filePath) {
 void printShellInteger(int n) {
 	int tmp = n;
     int i;
-    int length = 0;
+    int length = 1;
+	char number[5];
 	char isNegative = 0;
-	char number[11];
 
     // If n is 0...
 	if(n == 0) {
@@ -323,26 +316,25 @@ void printShellInteger(int n) {
     }
 
     // Check length of int
-    while(tmp!=0)
+    while(tmp>10)
     {
         tmp = div(tmp, 10);
         ++length;
     }
 
     tmp = n;
+	if (isNegative) {
+		tmp = -tmp;
+	}
 
 	for(i=length-1;i>=0;i--)
 	{
 		number[i] = mod(tmp,10) + '0';
-		// printShell(number+i);
 		tmp = div(tmp, 10);
 	}
-
     number[length] = 0;
 
-    if(isNegative)
-    	printShell("-");
-
+    if(isNegative) printShell("-");
     printShell(number);
 }
 
@@ -361,6 +353,7 @@ int mod(int a, int b) {
 	}
 	return a;
 }
+
 void clear(char *buffer, int length)
 {
 	int i;

@@ -12,7 +12,7 @@ void printInteger(int n) {
 	int tmp = n;
     int i;
     int length = 1;
-	char number[11];
+	char number[5];
 	char isNegative = 0;
 
     // If n is 0...
@@ -29,13 +29,16 @@ void printInteger(int n) {
     }
 
     // Check length of int
-    while(tmp>0)
+    while(tmp>10)
     {
         tmp = div(tmp, 10);
         ++length;
     }
 
     tmp = n;
+	if (isNegative) {
+		tmp = -tmp;
+	}
 
 	for(i=length-1;i>=0;i--)
 	{
@@ -48,7 +51,7 @@ void printInteger(int n) {
     printString(number);
 }
 
-void printHexa(int n)
+void printHexa(char n)
 {
 	char number[3];
 	number[2] = 0;

@@ -8,9 +8,14 @@ void readFile(char *buffer, char *path, int *result, char parentIndex) {
 
 	fileIdx = getPathIndex(parentIndex, path);
 
-
 	if (fileIdx == -1) {
-		printString("Cannot read file. No such file found.");
+		printString("Cannot read file. No such file found.\n\r");
+		*result = -1;
+		return;
+	}
+
+	if ((fileIdx >> 8) == 0x1) {
+		printString("Cannot read folder.\n\r");
 		*result = -1;
 		return;
 	}
