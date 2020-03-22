@@ -7,6 +7,7 @@ void printShellInteger(int n);
 int div(int a, int b);
 int mod(int a, int b);
 void strcpy(char * dest, char * src);
+void listFolderContents(char folderIndex, char *returnList);
 
 void clear(char *buffer, int length);
 
@@ -14,11 +15,11 @@ int main()
 {
 	char command[128];
 	char tmp[10];
-	char files[1024];
 	char history[4][128];		// Max 4 commands (above that OOB?)
 	char parentIndex = 0xFF;
 	char *programName;
 	char wasArrowPressed = 0;
+	char pathEnvIndex = 0xFF;		// $PATH position
 
 	int histCount = 0;
 	int histIdx = -1;		// current index on the history
@@ -105,7 +106,22 @@ int main()
 				else
 				{
 					parentIndex = pathIndex;
-					
+				}
+			}
+			// ------------------------------  COMMAND = export $PATH
+			else if (isStringStartsWith(command, "export ", 7)) {
+				if (isStringStartsWith(command + 7, "$PATH ", 6)) {
+					pathIndex = getPathIndex(parentIndex, command + 13);
+					if(pathIndex == -1)
+					{
+						printShell("No such file or directory\n\r");
+					}
+					else
+					{
+						pathEnvIndex = pathIndex;
+					}
+				} else {
+					printShell("Usage: export $PATH <folder path>\n\r");
 				}
 			}
 			// ------------------------------  EXEC PROGRAM
@@ -116,9 +132,16 @@ int main()
 					printShell("No such file\n\r");
 				}
 			}
-			// ------------------------------  UNRECOGNIZED CMD
+			// ------------------------------  PATH ENV FILES
 			else {
-				printShell("Invalid command\n\r");
+				// Execute program in path
+				interrupt(0x21, pathEnvIndex * 0x100 + 0x06, command, 0x3000, &flag);
+				if (flag == -1)
+				{
+			// ------------------------------  UNRECOGNIZED CMD
+					printShell("Invalid command\n\r");
+				}
+
 			}
 
 
@@ -127,7 +150,7 @@ int main()
 				strcpy(history + (i + 1) * 128, history + i * 128);
 			}
 			if (histCount < 4) {
-				histCount++;
+				histCount++;	
 			}
 
 			strcpy(history, command);
@@ -317,6 +340,23 @@ int getPathIndex(char parentIndex, char *filePath) {
 	return P;
 }
 
+void listFolderContents(char folderIndex, char *returnList) {
+	char files[512 * 2];
+	char i;
+	char j = 0;
+
+	interrupt(0x21, 0x02, files, 0x101, 0);
+	interrupt(0x21, 0x02, files + 512, 0x102, 0);
+
+	for (i = 0; i < 64; i++) {
+		if (files[i * 16] == folderIndex) {
+			returnList[j] = i;
+			j++;
+		}
+	}
+	returnList[j] = 0xFF;
+}
+
 void printShellInteger(int n) {
 	int tmp = n;
     int i;
@@ -412,3 +452,11 @@ void clear(char *buffer, int length)
 //		return (-1);
 //	}
 //}
+
+// c a d b e b a b c d 4frame
+// GAMBAR + JUMLAH
+// FIFO - cx ax dx bx ex bv av bv cx dv - 6
+// LRU - cx ax dx bx ex bv av bv cx dx - 7
+// LFU - cx ax dx bx ex bv av bv cx dv - 6
+// MFU - cx ax dx bx ex bv av bv cx dv - 6
+// Optimal - cx ax dx bx ex av bv av cx dv - 6
