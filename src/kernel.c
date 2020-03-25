@@ -81,68 +81,11 @@ void handleInterrupt21 (int AX, int BX, int CX, int DX) {
 	}
 }
 
-int div(int a, int b) {
-	int x = 0;
-	while (a >= b) {
-		a -= b;
-		x++;
-	}
-	return x;
-}
-
-int mod(int a, int b) {
-	while (a >= b) {
-		a -= b;
-	}
-	return a;
-}
-
 void clear(char *buffer, int length) {
 	int i;
 	for (i = 0; i < length; i++) {
 		buffer[i] = 0;
 	}
-}
-
-char isStringEqual(char *a, char *b, int length) {
-	int i;
-
-	for (i = 0; i < length; i++) {
-		if (a[i] != b[i]) {
-			// printString(a);
-			// printString(b);
-			// printString("\r\n");
-			return 0;
-		}
-		if (a[i] == 0) {
-			printString("\rw");
-			return 1;
-		}
-	}
-	return 1;
-}
-
-char isStringStartsWith(char *a, char *b, int length) {
-	int i;
-
-	for (i = 0; i < length; i++) {
-		if (b[i] == 0) {
-			return 1;
-		}
-		if (a[i] != b[i]) {
-			return 0;
-		}
-	}
-
-	return 1;
-}
-
-int stringLength(char *string, int max) {
-	int length = 0;
-	while (string[length] != 0 && length < max) {
-		length++;
-	}
-	return length;
 }
 
 void executeProgram(char *filename, int segment, int *success, char parentIndex) {

@@ -31,17 +31,6 @@ int main()
 
 	while(1)
 	{
-		// Clear command buffer
-		// If previously is not arrow press, clear buffer
-		// if(!wasArrowPressed)
-		// {
-		// 	printPath(parentIndex);
-		// 	clear(command, 512);
-		// }
-		// else
-		// {
-		// 	printShell(command);
-		// }
 		printPath(parentIndex);
 		printShell(command);
 
