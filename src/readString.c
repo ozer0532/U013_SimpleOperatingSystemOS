@@ -1,3 +1,4 @@
+// Input string procedure using interrupt 0x10
 void readString(char *string, char* lastchar) {
 	char inputHigh;
 	char inputLow;

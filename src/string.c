@@ -1,11 +1,9 @@
+// Check whether string a and b is equal
 char isStringEqual(char *a, char *b, int length) {
 	int i;
 
 	for (i = 0; i < length; i++) {
 		if (a[i] != b[i]) {
-			// printString(a);
-			// printString(b);
-			// printString("\r\n");
 			return 0;
 		}
 		if (a[i] == 0) {
@@ -16,6 +14,7 @@ char isStringEqual(char *a, char *b, int length) {
 	return 1;
 }
 
+// Check first letter of string
 char isStringStartsWith(char *a, char *b, int length) {
 	int i;
 
@@ -31,6 +30,7 @@ char isStringStartsWith(char *a, char *b, int length) {
 	return 1;
 }
 
+// Get string length
 int stringLength(char *string, int max) {
 	int length = 0;
 	while (string[length] != 0 && length < max) {

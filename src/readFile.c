@@ -1,3 +1,11 @@
+// Read file from sector
+
+/* Usage */
+// buffer : the container of contents to be read
+// path : the path relative to parentIndex of the file
+// result : flag to determine operation success or not
+// parentIndex : the sector index of the parent folder
+
 void readFile(char *buffer, char *path, int *result, char parentIndex) {
 	char sectors[512];
 	char files[1024];
