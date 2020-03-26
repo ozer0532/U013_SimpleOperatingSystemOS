@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 // Returns the string typed by the keyboard after 'Enter'
 // Change the starting position using [0xb0, 0xb0, <start_pos>, <start_string>]
 // When arrow key is pressed, returns [0x00, <arrow_key_code>]
 void readString(char *string) {
+=======
+// Input string procedure using interrupt 0x10
+void readString(char *string, char* lastchar) {
+>>>>>>> refactor-structure
 	char inputHigh;
 	char inputLow;
 	int charInput;

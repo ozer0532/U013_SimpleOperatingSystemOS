@@ -38,6 +38,7 @@ int main()
 
 	while(1)
 	{
+<<<<<<< HEAD
 		// Clear command buffer
 		// If previously is not arrow press, clear buffer
 		// if(!wasArrowPressed)
@@ -49,6 +50,10 @@ int main()
 		// {
 		// 	printShell(command);
 		// }
+=======
+		printPath(parentIndex);
+		printShell(command);
+>>>>>>> refactor-structure
 
 		if (!wasArrowPressed) {
 			printPath(parentIndex);

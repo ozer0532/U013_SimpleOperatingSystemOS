@@ -2,8 +2,5 @@
 
 ./generate.sh
 ./compile.sh
-if [ $1 = "-ext" ]
-then
-	./compile-ext.sh
-fi
+./compile-ext.sh
 ./run.sh <<< "c"
