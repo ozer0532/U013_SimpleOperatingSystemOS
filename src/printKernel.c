@@ -55,12 +55,7 @@ void printInteger(int n) {
     printString(number);
 }
 
-<<<<<<< HEAD
 void printHexa(char n)
-=======
-// Outputs hexadecimal
-void printHexa(int n)
->>>>>>> refactor-structure
 {
 	char number[3];
 	number[2] = 0;
