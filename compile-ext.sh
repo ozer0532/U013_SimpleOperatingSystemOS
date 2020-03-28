@@ -10,4 +10,3 @@ ld86 -o shell -d ./obj/shell.o ./obj/lib.o
 
 ./loadFile shell
 
-./loadFile hello

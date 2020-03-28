@@ -1,3 +1,11 @@
+// Write file to sector
+
+/* Usage: */
+// buffer : contents to be written
+// path : where the file will be written
+// sectorCount : amount of sector that is going to be written
+// parentIndex : the sector index of the parent folder
+
 void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 	char map[512];
 	char files[1024];

@@ -1,3 +1,6 @@
+// Procedures for printing string
+
+// Outputs string
 void printString(char *string) {
 	char * pointer = string;
 
@@ -8,11 +11,12 @@ void printString(char *string) {
 	}
 }
 
+// Outputs integer
 void printInteger(int n) {
 	int tmp = n;
     int i;
     int length = 1;
-	char number[11];
+	char number[5];
 	char isNegative = 0;
 
     // If n is 0...
@@ -29,13 +33,16 @@ void printInteger(int n) {
     }
 
     // Check length of int
-    while(tmp>0)
+    while(tmp>10)
     {
         tmp = div(tmp, 10);
         ++length;
     }
 
     tmp = n;
+	if (isNegative) {
+		tmp = -tmp;
+	}
 
 	for(i=length-1;i>=0;i--)
 	{
@@ -48,7 +55,7 @@ void printInteger(int n) {
     printString(number);
 }
 
-void printHexa(int n)
+void printHexa(char n)
 {
 	char number[3];
 	number[2] = 0;
@@ -63,11 +70,13 @@ void printHexa(int n)
 
 }
 
+// Put colored character in memory
 void putchar(int x, int y, char cc, char color){
 	putInMemory(0xB000, 0x8000 + (2*(80*y+x)), cc);
 	putInMemory(0xB000, 0x8000 + (2*(80*y+x))+1, color);
 }
 
+// Printing string with color
 void printStringFormat(int x, int y, char *string, char color) {
 	char * pointer = string;
 	int startx = x;

@@ -1,3 +1,11 @@
+// Read file from sector
+
+/* Usage */
+// buffer : the container of contents to be read
+// path : the path relative to parentIndex of the file
+// result : flag to determine operation success or not
+// parentIndex : the sector index of the parent folder
+
 void readFile(char *buffer, char *path, int *result, char parentIndex) {
 	char sectors[512];
 	char files[1024];
@@ -8,9 +16,14 @@ void readFile(char *buffer, char *path, int *result, char parentIndex) {
 
 	fileIdx = getPathIndex(parentIndex, path);
 
-
 	if (fileIdx == -1) {
-		printString("Cannot read file. No such file found.");
+		printString("Cannot read file. No such file found.\n\r");
+		*result = -1;
+		return;
+	}
+
+	if ((fileIdx >> 8) == 0x1) {
+		printString("Cannot read folder.\n\r");
 		*result = -1;
 		return;
 	}
