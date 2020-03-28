@@ -59,7 +59,7 @@ void main(int argc, char* argv[]) {
   // copy the name over
   for (i = 0; i < 14; i++) {
     if (argv[1][i] == 0) break;
-    files[filesindex + i + 2] = argv[1][i];
+    files[filesindex + i + 2] = argv[2][i];
   }
 
   // find a free entry in sectors
@@ -98,7 +98,7 @@ void main(int argc, char* argv[]) {
     secindex++;
     sectcount++;
 
-    printf("Loaded %s to sector %d\n", argv[1], i);
+    printf("Loaded %s to sector %d\n", argv[2], i);
 
     // move to the sector and write to it
     fseek(floppy, i * 512, SEEK_SET);

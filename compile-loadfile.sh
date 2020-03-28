@@ -1,3 +1,4 @@
 #!/bin/bash
 
-gcc ./src/loadFile.c -o loadFile
+# Compile loadFile.c to executable
+gcc ./src/ext/loadFile.c -o ./loadFile

@@ -33,8 +33,7 @@ void printBootLogo();
 
 int main () {
 	char command[512];
-	// char filename[512];
-	// char fileRead[512 * 20];
+
 	int flag = 1;
 	int i;
 
@@ -44,14 +43,6 @@ int main () {
 
 	printString("\n");
 
-	// Testing code
-	// getPathIndex(0xFF, "pisang");
-	// printInteger(getPathIndex(0x00, "../pisang/../abcdef"));
-	// while(1) {
-
-	// }
-
-	// What's supposed to be here
 	clear(command, 512);
 	executeProgram("shell", 0x2000, &flag, 0xFF);
     while (1) {
