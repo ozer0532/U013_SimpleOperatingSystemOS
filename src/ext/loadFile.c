@@ -58,7 +58,7 @@ void main(int argc, char* argv[]) {
   for (i = 0; i < 14; i++) files[filesindex + i + 2] = 0x00;
   // copy the name over
   for (i = 0; i < 14; i++) {
-    if (argv[1][i] == 0) break;
+    if (argv[2][i] == 0) break;
     files[filesindex + i + 2] = argv[2][i];
   }
 
@@ -97,7 +97,7 @@ void main(int argc, char* argv[]) {
     sectors[secindex] = i;
     secindex++;
     sectcount++;
-
+    
     printf("Loaded %s to sector %d\n", argv[2], i);
 
     // move to the sector and write to it
