@@ -16,6 +16,7 @@ int main()
 	char command[128];
 	char tmp[10];
 	char history[4][128];		// Max 4 commands (above that OOB?)
+	char fileBuffer[512];
 	char parentIndex = 0xFF;
 	char *programName;
 	char wasArrowPressed = 0;
@@ -110,10 +111,17 @@ int main()
 			}
 			// ------------------------------  COMMAND = cat
 			else if (isStringStartsWith(command, "cat", 3)) {
-				interrupt(0x21, 0xFF06, command, 0x3000, &flag);
+				pathIndex = getPathIndex(parentIndex, command+4);
+				// printShellInteger(pathIndex);
+   				interrupt(0x21, (parentIndex<<8) + 0x04, fileBuffer, command+4, &flag);
+				// interrupt(0x21, 0xFF06, command, 0x3000, &flag);
 				if (flag == -1)
 				{
 					printShell("No such file\n\r");
+				}
+				else
+				{
+					printShell(fileBuffer);
 				}
 			}
 			// ------------------------------  COMMAND = export $PATH

@@ -17,3 +17,7 @@ dd if=./img/files.img of=system.img bs=512 count=2 seek=257 conv=notrunc
 
 # Insert sectors to sector 0x103 (259)
 dd if=./img/sectors.img of=system.img bs=512 count=1 seek=259 conv=notrunc
+
+# Insert file contents to sector 0x60 (96)
+dd if=./img/content.img of=system.img bs=512 count=1 seek=96 conv=notrunc
+

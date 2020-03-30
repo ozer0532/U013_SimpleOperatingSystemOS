@@ -18,7 +18,7 @@ echo "Compiling lib.asm..."
 
 # Compile and insert shell
 echo "Compiling and inserting shell..."
-./compile-shell.sh > /dev/null 2>&1
+./compile-shell.sh
 
 # Compile and insert
 echo "Compiling and inserting external programs and its library..."
