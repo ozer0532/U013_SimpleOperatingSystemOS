@@ -42,7 +42,7 @@ void bushCreateFolder(char * filename, char parentIndex)
 		files[idxRow<<4] = parentIndex;
 		files[(idxRow<<4) + 1] = 0xFF;
 		idx = 0;
-		while(files[(idxRow<<4)+2+idx] !- 0x00)
+		while(files[(idxRow<<4)+2+idx] != 0x00)
 		{
 			files[(idxRow<<4)+2+idx] = filename[idx];
 			idx+=1;
