@@ -13,6 +13,10 @@ void executeProgram(char *filename, int segment, int *success, char parentIndex)
 void putchar(int x, int y, char cc, char color);
 void printStringFormat(int x, int y, char *string, char color);
 void deleteFile(char* path, int* result, char parentIndex);
+void createFolder(char * filename, char parentIndex);
+void deleteContent(char parentIndex, char * buffer);
+void deleteFolder(char * filename, char parentIndex);
+void listContent(char * filename, char parentIndex);
 
 int div(int a, int b);
 int mod(int a, int b);
@@ -45,7 +49,9 @@ int main () {
 	printString("\n");
 
 	clear(command, 512);
+	deleteFolder("pisang", 0xFF);
 	// deleteFile("abcdef", &flag, 0xFF);
+	// createFolder("mangga", 0xFF);
 	executeProgram("shell", 0x2000, &flag, 0xFF);
     while (1) {
 		printString("Enter a program to execute: ");
@@ -82,6 +88,12 @@ void handleInterrupt21 (int AX, int BX, int CX, int DX) {
 			break;
 		case 0x07:
 			deleteFile(CX, DX, AH);
+			break;
+		case 0x08:
+			createFolder(BX, AH);
+			break;
+		case 0x09:
+			deleteFolder(BX, AH);
 			break;
 		default:
 			printString("Invalid interrupt");
