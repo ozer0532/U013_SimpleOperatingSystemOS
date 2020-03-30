@@ -45,7 +45,7 @@ int main () {
 	printString("\n");
 
 	clear(command, 512);
-	deleteFile("abcdef", &flag, 0xFF);
+	// deleteFile("abcdef", &flag, 0xFF);
 	executeProgram("shell", 0x2000, &flag, 0xFF);
     while (1) {
 		printString("Enter a program to execute: ");
@@ -81,6 +81,7 @@ void handleInterrupt21 (int AX, int BX, int CX, int DX) {
 			executeProgram(BX, CX, DX, AH);
 			break;
 		case 0x07:
+			deleteFile(CX, DX, AH);
 			break;
 		default:
 			printString("Invalid interrupt");

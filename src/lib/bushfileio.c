@@ -10,4 +10,8 @@ void writeFile(char *buffer, char *path, int *result, char parentIndex)
     interrupt(0x21, (parentIndex<<8) + 0x05, buffer, path, result);
 }
 
-// TO DO : deleteFile (lagi dibuat di kernel)
+// Delete file
+void deleteFile(char *path, int *result, char parentIndex)
+{
+    interrupt(0x21, (parentIndex<<8) + 0x07, 0, path, result);
+}
