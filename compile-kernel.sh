@@ -2,7 +2,7 @@
 
 # Declare filenames for compiling
 # Add ONLY the filenames in ./src directory; no extensions.
-declare -a filenames=("kernel" "writeFile" "readString" "printKernel" "readFile" "sectorOperations" "math" "string")
+declare -a filenames=("kernel" "writeFile" "readString" "printKernel" "readFile" "sectorOperations" "math" "string" "deleteFile")
 
 # Compile files in src directory to object code
 for i in "${filenames[@]}"
@@ -27,4 +27,4 @@ params="$params ./bin/kernel/kernel_asm.o"
 ld86 -o ./img/kernel.img -d $params
 
 # Insert kernel to sector 0x3 (3)
-dd if=./img/kernel.img of=system.img bs=512 seek=3 conv=notrunc
+dd if=./img/kernel.img of=system.img bs=512 seek=1 conv=notrunc

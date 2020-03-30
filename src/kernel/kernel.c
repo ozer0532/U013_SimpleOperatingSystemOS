@@ -12,6 +12,7 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex);
 void executeProgram(char *filename, int segment, int *success, char parentIndex);
 void putchar(int x, int y, char cc, char color);
 void printStringFormat(int x, int y, char *string, char color);
+void deleteFile(char* path, int* result, char parentIndex);
 
 int div(int a, int b);
 int mod(int a, int b);
@@ -44,6 +45,7 @@ int main () {
 	printString("\n");
 
 	clear(command, 512);
+	deleteFile("abcdef", &flag, 0xFF);
 	executeProgram("shell", 0x2000, &flag, 0xFF);
     while (1) {
 		printString("Enter a program to execute: ");
@@ -77,6 +79,8 @@ void handleInterrupt21 (int AX, int BX, int CX, int DX) {
 			break;
 		case 0x06:
 			executeProgram(BX, CX, DX, AH);
+			break;
+		case 0x07:
 			break;
 		default:
 			printString("Invalid interrupt");
