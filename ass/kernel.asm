@@ -112,9 +112,9 @@ _launchProgram:
 
 jump:	call 0x0000:0x0000	;and start running (the first 0000 is changed above)
 	; Modded code, originally jump:	jmp 0x0000:0x0000
-	mov ah,0Eh
-	mov al,41h 
-	int 10h
+	; mov ah,0Eh
+	; mov al,41h 
+	; int 10h
 
 	; pop bp
 	pop cx
