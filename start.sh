@@ -9,7 +9,7 @@ echo -e "${YELLOW}Generating new system image...${NC}"
 
 # Compile and insert kernel
 echo -e "${YELLOW}Compiling and inserting kernel...${NC}"
-./compile-kernel.sh > /dev/null 2>&1
+./compile-kernel.sh
 
 # Compile file/executable loader
 echo -e "${YELLOW}Compiling loadFile...${NC}"

@@ -1,12 +1,13 @@
 // Check whether string a and b is equal
-char isStringEqual(char *a, char *b, int length) {
+int isStringEqual(char *a, char *b, int length) {
 	int i;
 
-	for (i = 0; i < length; i++) {
-		if (a[i] != b[i]) {
+	for (i = 0; i < length; ++i) {
+		if (*(a+i) != *(b+i)) {
 			return 0;
 		}
-		if (a[i] == 0) {
+
+		if (*(a+i) == 0) {
 			printString("\rw");
 			return 1;
 		}
