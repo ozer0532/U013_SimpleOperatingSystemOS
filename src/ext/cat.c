@@ -6,5 +6,7 @@ int main()
     // char fileBuffer[512 * 16];
     // readFile(fileBuffer, );
 
-    printString("hello");     
+    printString("hello");    
+    returnToSender();
+    return 0; 
 }
