@@ -17,6 +17,7 @@ int main()
 	char tmp[10];
 	char history[4][128];		// Max 4 commands (above that OOB?)
 	char fileBuffer[512];
+	char parameterBuffer[512];
 	char parentIndex = 0xFF;
 	char *programName;
 	char wasArrowPressed = 0;
@@ -97,6 +98,24 @@ int main()
 
 		// ARROW KEYS ARE NOT PRESSED
 		} else {
+			// -=-=-=-=-= BETA =-=-=-=-=- (ribet, harusnya masukin current path index dsb gt yg butuh)
+			// STORE PARAMETER TO SECTOR 0x104 :D
+			// readSector(parameterBuffer, 0x104);
+			
+			// // Find character after space
+			// i = 0;
+			// j = 0;
+			// while(command[i] != ' ') i++;
+			// ++i;
+
+			// // Insert parameter to buffer
+			// while(command[i] != 0x00)
+			// {
+			// 	parameterBuffer[j++] = command[i++];
+			// }
+
+			// writeSector(parameterBuffer, 0x104);
+
 			// ------------------------------  COMMAND = cd
 			if (isStringStartsWith(command, "cd ", 3)) {
 				pathIndex = getPathIndex(parentIndex, command + 3);

@@ -16,7 +16,7 @@ void deleteFile(char* path, int* result, char parentIndex);
 void createFolder(char * filename, char parentIndex);
 void deleteContent(char parentIndex, char * buffer);
 void deleteFolder(char * filename, char parentIndex);
-void listContent(char * filename, char parentIndex);
+void listContent(char parentIndex);
 
 int div(int a, int b);
 int mod(int a, int b);
@@ -37,8 +37,6 @@ void printBootLogo();
 
 
 int main () {
-	char command[512];
-
 	int flag = 1;
 	int i;
 
@@ -48,19 +46,8 @@ int main () {
 
 	printString("\n");
 
-	clear(command, 512);
-	deleteFolder("pisang", 0xFF);
-	// deleteFile("abcdef", &flag, 0xFF);
-	// createFolder("mangga", 0xFF);
+	// Execute shell as external program in memory segment 0x2000
 	executeProgram("shell", 0x2000, &flag, 0xFF);
-    while (1) {
-		printString("Enter a program to execute: ");
-    	readString(command);
-		executeProgram(command, 0x2000, &flag, 0xFF);
-		if (flag == -1) {
-			printString("Program not found\r\n");
-		}
-	}
 }
 
 void handleInterrupt21 (int AX, int BX, int CX, int DX) {
@@ -97,6 +84,15 @@ void handleInterrupt21 (int AX, int BX, int CX, int DX) {
 			break;
 		case 0x09:
 			deleteFolder(BX, AH);
+			break;
+		case 0x0A:
+			listContent(AH);
+			break;
+		case 0x0B:
+			mod(CX, DX);
+			break;
+		case 0x0C:
+			div(CX, DX);
 			break;
 		default:
 			printString("Invalid interrupt");

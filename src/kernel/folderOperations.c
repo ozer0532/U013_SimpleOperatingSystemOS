@@ -59,28 +59,33 @@ void deleteContent(char parentIndex, char * buffer)
 	int idx;
     int flag = 1;
 
-    printInteger(parentIndex);
+	printString("Deleting folder ");
+	printString(buffer + 16*parentIndex + 2);
+	printString("\n\r");
 
 	// Delete Content
 	for(idxRow = 0; idxRow<64; idxRow++)
 	{
-		if(buffer[idxRow<<4] == parentIndex)
+		// If there is file/folder and is in current directory...
+		if(buffer[(idxRow<<4)+2] != 0x00 && buffer[idxRow<<4] == parentIndex)
 		{
-			// Recursive
+			// If folder is being deleted...
             if(buffer[(idxRow<<4)+1] == 0xFF)
             {
+				// Recursively delete the content
 			    deleteContent(idxRow, buffer);
                 for(idx = 0; idx<16; ++idx)
                 {
                     buffer[(idxRow<<4) + idx] = 0x00;
                 }
             }
+			// else, delete file.
             else
             {
                 printString("Deleting ");
                 printString(buffer + idxRow*16 + 2);
                 printString("\n\r");
-                deleteFile(buffer + idxRow*16+2, &flag, parentIndex);
+                deleteFileFromBuffer(buffer + idxRow*16+2, &flag, parentIndex, buffer);
                 if(flag == -1) return;
             }
                 
@@ -102,15 +107,9 @@ void deleteFolder(char * filename, char parentIndex)
 	// Check filename
 	for(idxRow = 0; idxRow<64; ++idxRow)
 	{
-        printInteger(idxRow);
 		// If parentIndex equal...
 		if(files[16*idxRow] == parentIndex)
 		{
-            printString(filename);
-            printString("\n\r");
-            printString(files +16*idxRow+2);
-            printString("\n\r");
-
             printInteger(isStringEqual(filename, files + 16*idxRow + 2, 14));
             printString("\n\r");
 			if(isStringEqual(filename, files + 16*idxRow + 2, 14) == 1)		// Folder found
@@ -126,8 +125,7 @@ void deleteFolder(char * filename, char parentIndex)
         return;
     }
     
-    printString("Deleting folder...\n\r");
-    deleteContent((char)idxRow, files);
+    deleteContent(idxRow, files);
     for(i = 0; i<16; i++)
     {
         files[(idxRow<<4)+i] = 0x00;
@@ -137,55 +135,44 @@ void deleteFolder(char * filename, char parentIndex)
     writeSector(files+512, 0x102);
 }
 
-void listContent(char * filename, char parentIndex)
+void listContent(char parentIndex)
 {
 	char files[1024];
-	char sectName[16];
+	char sectors[512];
 	int idxRow;
-	int idx;
-	int i;
-	int j;
+	int sectorSize;
+	int idxSector;
 
 	// Read sector 0x101 & 0x102
 	readSector(files, 0x101);
     readSector(files+512, 0x102);
+	readSector(sectors, 0x103);
 
-	// Check filename
 	for(idxRow = 0; idxRow<64; idxRow++)
 	{
 		if(files[idxRow<<4] == parentIndex)
 		{
-			idx = 0;
-			while(files[(idxRow<<4)+2+idx] != 0x00)
+			sectorSize = 0;
+			if(files[(idxRow<<4)+1] == 0xFF)
 			{
-				if(files[(idxRow<<4)+2+idx] != filename[idx])
-				{
-					break;
-				}else
-				{
-					idx+=1;
-				}
+				printString("> ");
+				printString(files + (idxRow<<4) + 2);
 			}
-			if(files[(idxRow<<4)+2+idx] == 0x00)		// Folder found
+			else
 			{
-				for(i = 0; i<64; i++)
-				{
-					if(files[i<<4] = idxRow<<4)
-					{
-						for (j = 0; j < 16; j++)		// Clear sectName
-						{
-							sectName[j] = 0x00;
-						}
-						for (j = 0; j < 16; j++)		// Copy file name
-						{
-							sectName[j] = files[(i<<4)+2+j];
-						}
-						// Print sectName
-						interrupt(0x21, 0x00, sectName, 0, 0);
-					}
+				idxSector = files[(idxRow<<4) + 1];
+				while(sectors[(idxSector<<4)+sectorSize] != 0x00){
+					sectorSize++;
 				}
-				break;
+				printString("  ");
+				printString(files + (idxRow<<4) + 2);
+				printString(" || ");
+				printInteger(sectorSize);
+				printString(" sectors");
 			}
+			printString("\r\n");
 		}
 	}
+
+
 }
