@@ -9,6 +9,7 @@ global _putInMemory
 global _interrupt
 global _makeInterrupt21
 global _launchProgram
+global _launchProgramX
 extern _handleInterrupt21
 
 ;void putInMemory (int segment, int address, char character)
@@ -102,3 +103,46 @@ _launchProgram:
 	mov bp,0xfff0
 
 jump:	jmp 0x0000:0x0000	;and start running (the first 0000 is changed above)
+
+_launchProgramX:
+	push bp			;Modded code
+	mov bp,sp
+	mov bx,[bp+4]	;get the segment into bx
+
+	push ds
+	push es
+	mov cx,ss
+
+	mov ax,cs	;modify the jmp below to jump to our segment
+	mov ds,ax	;this is self-modifying code
+	mov si,jumpx
+	mov [si+3],bx	;change the first 0000 to the segment
+
+	mov ds,bx	;set up the segment registers
+	mov ss,bx
+	mov es,bx
+
+	mov bp,sp
+	mov sp,0xfff0	;set up the stack pointer
+	push cx
+	;push bp			;Modded code
+	;mov bp,sp		;Modded code -> originally mov bp,0xfff0
+
+
+jumpx:	call 0x0000:0x0000	;and start running (the first 0000 is changed above)
+	; Modded code, originally jump:	jmp 0x0000:0x0000
+	; mov ah,0Eh
+	; mov al,41h 
+	; int 10h
+
+	; pop bp
+	pop cx
+
+	mov ss,cx
+	mov sp,bp
+
+	pop es
+	pop ds
+
+	pop bp
+	ret

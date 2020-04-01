@@ -51,6 +51,9 @@ int main () {
 		printString("Enter a program to execute: ");
     	readString(command);
 		executeProgram(command, 0x2000, &flag, 0xFF);
+		if (flag == -1) {
+			printString("Program not found\r\n");
+		}
 	}
 }
 
@@ -104,7 +107,7 @@ void executeProgram(char *filename, int segment, int *success, char parentIndex)
 	readFile(buffer, filename, success, parentIndex);
 
 	if (*success == -1) {
-		printString("No such program is found.\n\r");
+		//printString("No such program is found.\n\r");
 		return;
 	}
 
@@ -113,7 +116,7 @@ void executeProgram(char *filename, int segment, int *success, char parentIndex)
 	}
 
 	// Launch program (from kernel.asm)
-	launchProgram(segment);
+	launchProgramX(segment);
 	// printString("AAAAAAAAAAAAAAAAAAAA")
 }
 

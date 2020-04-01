@@ -139,6 +139,11 @@ int main()
 				} else {
 					printShell("Usage: export $PATH <folder path>\n\r");
 				}
+			
+			// ------------------------------  COMMAND = exit
+			} else if (isStringStartsWith(command, "exit", 4)) {
+				returnToSender();
+				return 0;
 			}
 			// ------------------------------  EXEC PROGRAM
 			else if (command[0] == '.' && command[1] == '/') {

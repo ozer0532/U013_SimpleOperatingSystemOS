@@ -28,7 +28,7 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 	// Check parent index validity
 	if((files[(16*parentIndex)+1]!=0xFF) && (parentIndex != 0xFF))
 	{
-		printString("Failed to write file, folder invalid\n\r");
+		//printString("Failed to write file, folder invalid\n\r");
 		*sectors = -4;
 		return;
 	}
@@ -39,7 +39,7 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 	// Check if a file with the same name exists
 	for (filesRow = 0; filesRow < 64; filesRow++) {
 		if ((files[filesRow * 16] == currentDirectory) && (isStringEqual(path, files + (filesRow * 16) + 2, 14) == 1)) {
-			printString("Failed to write file, filename exists\n\r");
+			//printString("Failed to write file, filename exists\n\r");
 			*sectors = -1;
 			return;
 		}
@@ -56,14 +56,14 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 
 	// If files sector is full...
 	if (filesRow == 64) {
-		printString("Failed to write file, files sector limit reached\n\r");
+		//printString("Failed to write file, files sector limit reached\n\r");
 		*sectors = -2;
 		return;
 	}
 
 	// If there are not enough sectors to be written...
 	if (getEmptySectorCount(map, 256) < *sectorCount) {
-		printString("Failed to write file, map sector limit reached\n\r");
+		//printString("Failed to write file, map sector limit reached\n\r");
 		*sectors = -3;
 		return;
 	}
@@ -80,7 +80,7 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 	// If sectors sector is full...
 	if(sectorsRow == 32) {
 		*sectors = -3;
-		printString("Failed to write file, sectors sector limit reached\n\r");
+		//printString("Failed to write file, sectors sector limit reached\n\r");
 		return;
 	}
 
@@ -112,7 +112,7 @@ void writeFile(char *buffer, char *path, int *sectorCount, char parentIndex) {
 		// Store sector number in sectors sector
 		sectors[(sectorsRow<<4) + i] = sectorToWrite;
 
-		printString("Writing to sector");
+		//printString("Writing to sector");
 		writeSector(buffer + (i<<9), sectorToWrite);
 	}
 

@@ -16,8 +16,8 @@ echo -e "${YELLOW}Compiling loadFile...${NC}"
 ./compile-loadfile.sh
 
 # Compile lib.asm
-echo -e "${YELLOW}Compiling lib.asm...${NC}"
-./compile-lib.sh
+# echo -e "${YELLOW}Compiling lib.asm...${NC}"
+# ./compile-lib.sh
 
 # Compile and insert shell
 echo -e "${YELLOW}Compiling and inserting shell...${NC}"

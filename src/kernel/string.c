@@ -7,7 +7,7 @@ char isStringEqual(char *a, char *b, int length) {
 			return 0;
 		}
 		if (a[i] == 0) {
-			printString("\rw");
+			//printString("\rw");
 			return 1;
 		}
 	}

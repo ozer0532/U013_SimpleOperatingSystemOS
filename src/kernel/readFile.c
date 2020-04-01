@@ -17,18 +17,18 @@ void readFile(char *buffer, char *path, int *result, char parentIndex) {
 	fileIdx = getPathIndex(parentIndex, path);
 
 	if (fileIdx == -1) {
-		printString("Cannot read file. No such file found.\n\r");
+		//printString("Cannot read file. No such file found.\n\r");
 		*result = -1;
 		return;
 	}
 
 	if ((fileIdx >> 8) == 0x1) {
-		printString("Cannot read folder.\n\r");
+		//printString("Cannot read folder.\n\r");
 		*result = -1;
 		return;
 	}
 
-	printString("File found, reading file\r\n");
+	//printString("File found, reading file\r\n");
 
 	readSector(files, 0x101);
 	readSector(files + 512, 0x102);
@@ -40,10 +40,10 @@ void readFile(char *buffer, char *path, int *result, char parentIndex) {
 	for (noSector = 0; noSector < 16; noSector++) {
 		secPos = secIdx * 16 + noSector;
 		if (sectors[secPos] == 0) {
-			printString("End of file..\n\r");
+			//printString("End of file..\n\r");
 			break;
 		}
-		printString("Reading sector\n\r");
+		//printString("Reading sector\n\r");
 		// clear(buffer + (noSector * 512), 512);
 		readSector(buffer + (noSector * 512), sectors[secPos]);
 	}
