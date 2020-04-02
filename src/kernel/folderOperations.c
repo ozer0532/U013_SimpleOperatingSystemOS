@@ -135,44 +135,29 @@ void deleteFolder(char * filename, char parentIndex)
     writeSector(files+512, 0x102);
 }
 
-void listContent(char parentIndex)
+void listContent(char parentIndex, char *filesList, int *fileCount)
 {
 	char files[1024];
 	char sectors[512];
 	int idxRow;
-	int sectorSize;
 	int idxSector;
+	int i = 0;
 
 	// Read sector 0x101 & 0x102
 	readSector(files, 0x101);
     readSector(files+512, 0x102);
 	readSector(sectors, 0x103);
 
+	// For each files in system
 	for(idxRow = 0; idxRow<64; idxRow++)
 	{
-		if(files[idxRow<<4] == parentIndex)
+		// Check if P is equal to parentIndex
+		if((files[idxRow<<4] == parentIndex) && (files[idxRow * 16 + 2] != 0))
 		{
-			sectorSize = 0;
-			if(files[(idxRow<<4)+1] == 0xFF)
-			{
-				printString("> ");
-				printString(files + (idxRow<<4) + 2);
-			}
-			else
-			{
-				idxSector = files[(idxRow<<4) + 1];
-				while(sectors[(idxSector<<4)+sectorSize] != 0x00){
-					sectorSize++;
-				}
-				printString("  ");
-				printString(files + (idxRow<<4) + 2);
-				printString(" || ");
-				printInteger(sectorSize);
-				printString(" sectors");
-			}
-			printString("\r\n");
+			filesList[i] = idxRow;
+			i++;
 		}
 	}
-
-
+	*fileCount = i;
+	filesList[i] = 0xFF;
 }

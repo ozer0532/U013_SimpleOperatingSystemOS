@@ -8,6 +8,8 @@ int div(int a, int b);
 int mod(int a, int b);
 void strcpy(char * dest, char * src);
 void listFolderContents(char folderIndex, char *returnList);
+void parseCommand(char *fullCommand, char *mainCommand, int *paramsStart);
+void pushParameters(char *parameters, char currentDirectory);
 
 void clear(char *buffer, int length);
 
@@ -19,10 +21,10 @@ int main()
 	char fileBuffer[512];
 	char parameterBuffer[512];
 	char parentIndex = 0xFF;
-	char *programName;
 	char wasArrowPressed = 0;
 	char pathEnvIndex = 0xFF;		// $PATH position
 	char isFolder;
+	char parsedCommand[15];
 
 	int histCount = 0;
 	int histIdx = -1;		// current index on the history
@@ -165,20 +167,28 @@ int main()
 			}
 			// ------------------------------  EXEC PROGRAM
 			else if (command[0] == '.' && command[1] == '/') {
+				parseCommand(command + 2, parsedCommand, &i);
+				pushParameters(command + i + 2, parentIndex);
 				interrupt(0x21, 0xFF06, command + 2, 0x3000, &flag);
 				if (flag == -1)
 				{
 					printShell("No such file\n\r");
+				} else {
+					printShell("\r\n");
 				}
 			}
 			// ------------------------------  PATH ENV FILES
 			else {
 				// Execute program in path
-				interrupt(0x21, pathEnvIndex * 0x100 + 0x06, command, 0x3000, &flag);
+				parseCommand(command, parsedCommand, &i);
+				pushParameters(command + i, parentIndex);
+				interrupt(0x21, pathEnvIndex * 0x100 + 0x06, parsedCommand, 0x3000, &flag);
 				if (flag == -1)
 				{
 			// ------------------------------  UNRECOGNIZED CMD
 					printShell("Invalid command\n\r");
+				} else {
+					printShell("\r\n");
 				}
 
 			}
@@ -462,6 +472,41 @@ void clear(char *buffer, int length)
 	for (i = 0; i < length; i++) {
 		buffer[i] = 0;
 	}
+}
+
+void parseCommand(char *fullCommand, char *mainCommand, int *paramsStart) {
+	int i = 0;
+
+	while (fullCommand[i] != ' ' && fullCommand[i] != 0) {
+		mainCommand[i] = fullCommand[i];
+		i++;
+	}
+	*paramsStart = i + 1;
+}
+
+void pushParameters(char *parameters, char currentDirectory) {
+	char buffer[512];
+	char i = 2;
+	char j = 16;
+	char k = 0;
+
+	clear(buffer, 512);
+	buffer[0] = currentDirectory;
+	if (parameters[k] != 0) {
+		buffer[1] = 16;
+	}
+	while(parameters[k] != 0) {
+		if (parameters[k] == ' ') {
+			buffer[i] = j+1;
+			buffer[j] = 0;
+			i++;
+		} else {
+			buffer[j] = parameters[k];
+		}
+		j++;
+		k++;
+	}
+	interrupt(0x21, 0x3, buffer, 0x403, 0);
 }
 
 //int getCurrentPathIdx(char parentPath, char *buffer, char *command)

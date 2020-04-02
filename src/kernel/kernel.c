@@ -16,7 +16,7 @@ void deleteFile(char* path, int* result, char parentIndex);
 void createFolder(char * filename, char parentIndex);
 void deleteContent(char parentIndex, char * buffer);
 void deleteFolder(char * filename, char parentIndex);
-void listContent(char parentIndex);
+void listContent(char parentIndex, char *filesList, int *fileCount);
 
 int div(int a, int b);
 int mod(int a, int b);
@@ -86,7 +86,7 @@ void handleInterrupt21 (int AX, int BX, int CX, int DX) {
 			deleteFolder(BX, AH);
 			break;
 		case 0x0A:
-			listContent(AH);
+			listContent(AH, BX, CX);
 			break;
 		case 0x0B:
 			mod(CX, DX);
