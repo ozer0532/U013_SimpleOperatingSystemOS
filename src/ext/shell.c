@@ -2,7 +2,7 @@ void printShell(char *filecontain);
 void printPath(char path);
 int stringLength(char *string, int max);
 char isStringStartsWith(char *a, char *b, int length);
-int getPathIndex(char parentIndex, char *filePath);
+int getPathIndex(char parentIndex, char *filePath, char *isFolder);
 void printShellInteger(int n);
 int div(int a, int b);
 int mod(int a, int b);
@@ -22,6 +22,7 @@ int main()
 	char *programName;
 	char wasArrowPressed = 0;
 	char pathEnvIndex = 0xFF;		// $PATH position
+	char isFolder;
 
 	int histCount = 0;
 	int histIdx = -1;		// current index on the history
@@ -118,10 +119,10 @@ int main()
 
 			// ------------------------------  COMMAND = cd
 			if (isStringStartsWith(command, "cd ", 3)) {
-				pathIndex = getPathIndex(parentIndex, command + 3);
-				if(pathIndex == -1)
+				pathIndex = getPathIndex(parentIndex, command + 3, &isFolder);
+				if(pathIndex == -1 || !isFolder)
 				{
-					printShell("No such file or directory\n\r");
+					printShell("No such directory\n\r");
 				}
 				else
 				{
@@ -130,8 +131,6 @@ int main()
 			}
 			// ------------------------------  COMMAND = cat
 			else if (isStringStartsWith(command, "cat", 3)) {
-				pathIndex = getPathIndex(parentIndex, command+4);
-				// printShellInteger(pathIndex);
    				interrupt(0x21, (parentIndex<<8) + 0x04, fileBuffer, command+4, &flag);
 				// interrupt(0x21, 0xFF06, command, 0x3000, &flag);
 				if (flag == -1)
@@ -146,10 +145,10 @@ int main()
 			// ------------------------------  COMMAND = export $PATH
 			else if (isStringStartsWith(command, "export ", 7)) {
 				if (isStringStartsWith(command + 7, "$PATH ", 6)) {
-					pathIndex = getPathIndex(parentIndex, command + 13);
-					if(pathIndex == -1)
+					pathIndex = getPathIndex(parentIndex, command + 13, &isFolder);
+					if(pathIndex == -1 || !isFolder)
 					{
-						printShell("No such file or directory\n\r");
+						printShell("No such directory\n\r");
 					}
 					else
 					{
@@ -309,7 +308,7 @@ char isStringStartsWith(char *a, char *b, int length) {
 	return 1;
 }
 
-int getPathIndex(char parentIndex, char *filePath) {
+int getPathIndex(char parentIndex, char *filePath, char *isFolder) {
 	char lineSize;
 	char maxFileCount;
 	char files[512 * 2];
@@ -376,6 +375,7 @@ int getPathIndex(char parentIndex, char *filePath) {
 			}
 		}
 	}
+	*isFolder = ((P == 0xFF) || (files[P * 16 + 1] == 0xFF));
 
 	return P;
 }
