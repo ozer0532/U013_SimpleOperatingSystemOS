@@ -59,9 +59,9 @@ void deleteContent(char parentIndex, char * buffer)
 	int idx;
     int flag = 1;
 
-	printString("Deleting folder ");
-	printString(buffer + 16*parentIndex + 2);
-	printString("\n\r");
+	// printString("Deleting folder ");
+	// printString(buffer + 16*parentIndex + 2);
+	// printString("\n\r");
 
 	// Delete Content
 	for(idxRow = 0; idxRow<64; idxRow++)
@@ -82,9 +82,9 @@ void deleteContent(char parentIndex, char * buffer)
 			// else, delete file.
             else
             {
-                printString("Deleting ");
-                printString(buffer + idxRow*16 + 2);
-                printString("\n\r");
+                // printString("Deleting ");
+                // printString(buffer + idxRow*16 + 2);
+                // printString("\n\r");
                 deleteFileFromBuffer(buffer + idxRow*16+2, &flag, parentIndex, buffer);
                 if(flag == -1) return;
             }
@@ -110,8 +110,6 @@ void deleteFolder(char * filename, char parentIndex)
 		// If parentIndex equal...
 		if(files[16*idxRow] == parentIndex)
 		{
-            printInteger(isStringEqual(filename, files + 16*idxRow + 2, 14));
-            printString("\n\r");
 			if(isStringEqual(filename, files + 16*idxRow + 2, 14) == 1)		// Folder found
 			{
                 break;

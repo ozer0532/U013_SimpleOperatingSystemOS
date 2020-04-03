@@ -56,3 +56,41 @@ int isEntryFolder(int idxRow)
 	else
 		return 0;
 }
+
+int isPathFolder(char* fileName, char currentDirectory)
+{
+	char files[1024];
+	int idxRow = 0;
+
+	// Read sector 0x101 & 0x102
+	interrupt(0x21, 0x02, files, 0x101, 0);
+	interrupt(0x21, 0x02, files+512, 0x102, 0);
+
+	while (idxRow < 64) {
+		if (files[idxRow * 16] == currentDirectory && folStrEq(fileName, files + idxRow * 16 + 2, 14)) {
+			if (files[idxRow * 16 + 1] == 0xFF) {
+				return 1;
+			} else {
+				return 0;
+			}
+		} else {
+			idxRow++;
+		}
+	}
+	return -1;	// Not Found
+}
+
+int folStrEq(char *a, char *b, int length) {
+	int i;
+
+	for (i = 0; i < length; ++i) {
+		if (*(a+i) != *(b+i)) {
+			return 0;
+		}
+		if (a[i] == 0) {
+			//printString("\rw");
+			return 1;
+		}
+	}
+	return 1;
+}
