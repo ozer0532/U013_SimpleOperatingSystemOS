@@ -1,12 +1,33 @@
-void printString(char* s);
-// void readFile(char *buffer, char *path, int *result, char parentIndex);
-
 int main()
 {
-    // char fileBuffer[512 * 16];
-    // readFile(fileBuffer, );
+	int isFile;
+	char currentDir;
+    char argc;
+    char *argv[16];
+    char *buffer[512*16];
+    int fileExist;
 
-    printString("hello");    
-    returnToSender();
-    return 0; 
+    getParameters(&currentDir, &argc, argv);
+	if (argc != 1) {
+	    printString("Usage: cat <filename>");
+	    returnToSender();
+	    return 0;
+    }
+
+    isFile = isPathFolder(argv[0], currentDir);
+    if(isFile == 0){
+    	readFile(buffer, argv[0], fileExist, currentDir);
+    	printString(buffer);
+    	printString("\n");
+    }
+    else if(isFile	== 1){
+        printString(argv[0]);
+    	printString(" is not a file.");
+    }
+    else
+    {
+    	printString("File doesn't exist.");
+    }
+	returnToSender();
+	return 0;
 }

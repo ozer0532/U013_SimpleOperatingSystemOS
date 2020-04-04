@@ -132,7 +132,7 @@ int main()
 				}
 			}
 			// ------------------------------  COMMAND = cat
-			else if (isStringStartsWith(command, "cat", 3)) {
+			/*else if (isStringStartsWith(command, "cat", 3)) {
    				interrupt(0x21, (parentIndex<<8) + 0x04, fileBuffer, command+4, &flag);
 				// interrupt(0x21, 0xFF06, command, 0x3000, &flag);
 				if (flag == -1)
@@ -143,7 +143,7 @@ int main()
 				{
 					printShell(fileBuffer);
 				}
-			}
+			}*/
 			// ------------------------------  COMMAND = export $PATH
 			else if (isStringStartsWith(command, "export ", 7)) {
 				if (isStringStartsWith(command + 7, "$PATH ", 6)) {
