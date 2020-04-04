@@ -45,7 +45,8 @@ void createFolder(char *filename, char parentIndex)
     idx = 0;
     while(filename[idx] != 0x00)
     {
-        files[(idxRow<<4)+2+idx] = filename[idx++];
+        files[(idxRow<<4)+2+idx] = filename[idx];
+		idx++;
     }
 
 	// Buffer to System(write sector)
@@ -104,24 +105,28 @@ void deleteFolder(char * filename, char parentIndex)
 	readSector(files, 0x101);
     readSector(files+512, 0x102);
 
-	// Check filename
-	for(idxRow = 0; idxRow<64; ++idxRow)
-	{
-		// If parentIndex equal...
-		if(files[16*idxRow] == parentIndex)
-		{
-			if(isStringEqual(filename, files + 16*idxRow + 2, 14) == 1)		// Folder found
-			{
-                break;
-			}
-		}
-	}
+	// // Check filename
+	// for(idxRow = 0; idxRow<64; ++idxRow)
+	// {
+	// 	// If parentIndex equal...
+	// 	if(files[16*idxRow] == parentIndex)
+	// 	{
+	// 		if(isStringEqual(filename, files + 16*idxRow + 2, 14) == 1)		// Folder found
+	// 		{
+    //             break;
+	// 		}
+	// 	}
+	// }
 
-    if(idxRow>=64)
+	idxRow = getPathIndex(parentIndex, filename);
+
+    if (idxRow == -1 || (idxRow >> 8) == 0)
     {
         printString("Folder not found you dummy!\n\r");
         return;
     }
+
+	idxRow = idxRow & 0x00FF;
     
     deleteContent(idxRow, files);
     for(i = 0; i<16; i++)
