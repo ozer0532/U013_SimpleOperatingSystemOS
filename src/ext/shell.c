@@ -218,6 +218,7 @@ int main()
 			// }
 
 			clear(command, 128);
+			clear(parsedCommand, 15);
 		}
 
 	}

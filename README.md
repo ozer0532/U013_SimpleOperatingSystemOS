@@ -24,6 +24,18 @@ bochs -f if2230.config 
 6. separated simple program and ran it to operating system
 7. understanding how kernel.asm code works 
 
-## Milestone 2 (TBA):
+## Milestone 2 (forgot):
+1. Spek wajib kelar
+2. Program tambahan di milestone 1 kelar
 
-## Milestone 3 (TBA):
+## Milestone 3 (forgot):
+1. Spek wajib kelar
+2. ls - list directory content
+3. cp [src] [dest] - copy file/folder to folder
+4. mv [src] [dest] - move file/folder to folder
+5. mkdir [name] - make new folder
+6. rm [name] - remove file/folder
+7. cat [name] - print file contents
+
+## Milestone 4 (25/04/20):
+1. defrag - Defragment filesystem
