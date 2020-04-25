@@ -38,4 +38,5 @@ bochs -f if2230.config 
 7. cat [name] - print file contents
 
 ## Milestone 4 (25/04/20):
-1. defrag - Defragment filesystem
+1. defrag - Defragment filesystem (Bonus)
+2. fraggr - "Frag Grenade" the whole program (Cuz y not)

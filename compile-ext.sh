@@ -59,3 +59,4 @@ ld86 -o ./bin/ext/defrag_linked.o -d ./bin/ext/defrag.o ./bin/ext/lib.o
 ./loadFile ./bin/ext/mv_linked.o mv
 ./loadFile ./bin/ext/mkdir_linked.o mkdir
 ./loadFile ./bin/ext/defrag_linked.o defrag
+./loadFile ./bin/ext/fraggr_linked.o fraggr
