@@ -7,6 +7,13 @@ This is a project that was worked on by 4 people:
 * Chokyi Ozer - 13518107
 * Lionnarta Savirandy - 13518128
 
+## Requirements
+- Bochs (Running)
+- Bochs-x (Running)
+- bcc (Building)
+- nasm (Building)
+- bin86 (Building)
+
 ## How to run
 1. To generate a new `system.img`, run `generate.sh `
 2. To compile the `kernel.c` and `kernel.asm` and link it to `system.img`, run `compile.sh`
